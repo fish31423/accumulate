@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>雅俗共赏</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        
+        :root {
+            --primary-font: 'Noto Sans SC', sans-serif;
+            --nav-bg: #ffffff;
+            --nav-text: #1a1a1a;
+            --nav-border: #f0f0f0;
+            --bg-color: #fafafa;
+            --card-bg: #ffffff;
+        }
+        
+        html, body {
+            font-family: var(--primary-font);
+            background-color: var(--bg-color);
+            color: var(--nav-text);
+            overflow-x: hidden;
+            height: 100%;
+        }
+        
+        body.font-noto-sans { font-family: 'Noto Sans SC', sans-serif; }
+        body.font-noto-serif { font-family: 'Noto Serif SC', serif; }
+        body.font-xiaowei { font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif; }
+        
+        body.font-noto-sans * { font-family: 'Noto Sans SC', sans-serif !important; }
+        body.font-noto-serif * { font-family: 'Noto Serif SC', serif !important; }
+        body.font-xiaowei * { font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif !important; }
+        
+        .card-shadow {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-shadow:active {
+            transform: scale(0.98);
+        }
+        
+        .tag-border {
+            position: relative;
+            background: var(--card-bg);
+        }
+        
+        .tag-border::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 0.75rem;
+            padding: 2px;
+            background: linear-gradient(135deg, var(--tag-color, #e6eae7), var(--tag-color, #e6eae7));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+        
+        .tag-border.multi-tag::before {
+            background: var(--gradient-bg);
+        }
+        
+        .sentence-text {
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            line-height: 1.75;
+        }
+        
+        .sentence-text.collapsed {
+            -webkit-line-clamp: 2;
+            max-height: 3.5em;
+        }
+        
+        .sentence-text.expanded {
+            -webkit-line-clamp: unset;
+            max-height: 2000px;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 480px;
+            max-height: 85vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        @keyframes modalPop {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--nav-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .batch-checkbox {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+            background: white;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .batch-checkbox.checked {
+            background: #1a1a1a;
+            border-color: #1a1a1a;
+        }
+        
+        .batch-checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 14px;
+        }
+        
+        .batch-toolbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--nav-bg);
+            border-top: 1px solid var(--nav-border);
+            padding: 12px 16px;
+            z-index: 90;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .batch-toolbar.active {
+            transform: translateY(0);
+        }
+        
+        /* 搜索模式样式 */
+        .nav-search-mode {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            padding: 8px 16px;
+            background: var(--nav-bg);
+            border-bottom: 1px solid var(--nav-border);
+            display: none;
+        }
+        
+        .nav-search-mode.active {
+            display: flex;
+        }
+        
+        .nav-search-mode input {
+            flex: 1;
+            height: 40px;
+            padding: 0 12px;
+            border: none;
+            background: var(--bg-color);
+            border-radius: 20px;
+            font-size: 16px;
+            outline: none;
+            color: var(--nav-text);
+        }
+        
+        .morandi-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .morandi-color {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .morandi-color:hover {
+            transform: scale(1.1);
+        }
+        
+        .morandi-color.selected {
+            border-color: #1a1a1a;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        .morandi-color.selected::after {
+            content: '✓';
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(0,0,0,0.6);
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        /* 标签管理样式 */
+        .tag-manage-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: 10px;
+            background: var(--bg-color);
+            margin-bottom: 8px;
+            border: 1px solid var(--nav-border);
+        }
+        
+        .tag-color-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        
+        .tag-name {
+            flex: 1;
+            font-size: 14px;
+            color: var(--nav-text);
+        }
+        
+        .tag-actions {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        
+        .tag-action-btn {
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            opacity: 0.6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .tag-action-btn:hover {
+            opacity: 1;
+            background: rgba(0,0,0,0.05);
+        }
+        
+        .theme-preset {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 8px;
+        }
+        
+        .preset-btn {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .preset-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .preset-btn.selected {
+            border-color: var(--nav-text);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .preset-btn.selected::after {
+            content: '✓';
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: inherit;
+            font-weight: bold;
+        }
+        
+        .font-option {
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--nav-border);
+            margin-bottom: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+            background: var(--bg-color);
+        }
+        
+        .font-option:hover {
+            border-color: var(--nav-text);
+        }
+        
+        .font-option.selected {
+            border-color: var(--nav-text);
+            background: rgba(0,0,0,0.05);
+        }
+        
+        .radio-circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid var(--nav-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .font-option.selected .radio-circle {
+            border-color: var(--nav-text);
+            background: var(--nav-text);
+        }
+        
+        .radio-circle::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--card-bg);
+            border-radius: 50%;
+            display: none;
+        }
+        
+        .font-option.selected .radio-circle::after {
+            display: block;
+        }
+        
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* 标签文字颜色自动计算 */
+        .tag-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid transparent;
+        }
+    </style>
+</head>
+<body class="font-noto-sans pb-20">
+
+    <!-- 顶部导航 - 普通模式 -->
+    <header id="normalNav" class="fixed top-0 left-0 right-0 z-50 px-4 py-3" style="background: var(--nav-bg); border-bottom: 1px solid var(--nav-border);">
+        <div class="max-w-2xl mx-auto flex justify-between items-center gap-3">
+            <!-- 左侧：全部下拉 + 展开/折叠 + 多选 -->
+            <div class="flex items-center gap-2">
+                <div class="relative">
+                    <button id="filterBtn" class="flex items-center gap-1 text-sm font-medium px-3 py-1.5 rounded-full border transition-colors" 
+                            style="border-color: var(--nav-border); color: var(--nav-text); background: var(--bg-color);">
+                        <span id="currentFilter">全部</span>
+                        <svg class="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div id="filterDropdown" class="hidden absolute top-full left-0 mt-2 w-48 rounded-xl shadow-lg border py-2 z-50" 
+                         style="background: var(--card-bg); border-color: var(--nav-border);">
+                        <button onclick="filterByTag('all')" class="w-full text-left px-4 py-2 hover:opacity-70 text-sm transition-colors" 
+                                style="color: var(--nav-text);">全部</button>
+                        <div id="tagFilterList" class="border-t mt-2 pt-2 max-h-48 overflow-y-auto hide-scrollbar" 
+                             style="border-color: var(--nav-border);"></div>
+                    </div>
+                </div>
+                
+                <button onclick="toggleCardExpand()" class="p-2 rounded-full border transition-colors" 
+                        style="border-color: var(--nav-border); color: var(--nav-text); background: var(--bg-color);" 
+                        title="展开/折叠">
+                    <svg id="expandIcon" class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                
+                <button onclick="toggleBatchMode()" id="batchModeBtn" class="px-3 py-1.5 rounded-full border text-sm font-medium transition-colors" 
+                        style="border-color: var(--nav-border); color: var(--nav-text); background: var(--bg-color);">
+                    多选
+                </button>
+            </div>
+            
+            <!-- 右侧：搜索 + 设置 -->
+            <div class="flex items-center gap-2">
+                <button onclick="enterSearchMode()" class="p-2 rounded-full hover:opacity-70 transition-opacity" style="color: var(--nav-text);">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </button>
+                
+                <button onclick="openSettings()" class="p-2 rounded-full hover:opacity-70 transition-opacity" style="color: var(--nav-text);">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 搜索模式导航栏 -->
+    <div id="searchNav" class="nav-search-mode">
+        <div class="max-w-2xl mx-auto flex items-center gap-3">
+            <svg class="w-5 h-5 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--nav-text);">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <input type="text" id="searchInput" placeholder="搜索句子..." oninput="handleSearch(this.value)" autocomplete="off">
+            <button onclick="exitSearchMode()" class="px-3 py-1.5 text-sm font-medium" style="color: var(--nav-text);">
+                取消
+            </button>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <main class="pt-20 px-4 max-w-2xl mx-auto min-h-screen">
+        <div id="sentencesList" class="space-y-3 mt-2">
+            <!-- 句子卡片将在这里渲染 -->
+        </div>
+        
+        <div id="emptyState" class="hidden flex-col items-center justify-center py-20 opacity-40">
+            <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--nav-text);">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+            </svg>
+            <p class="text-sm" style="color: var(--nav-text);">还没有句子，点击右下角添加</p>
+        </div>
+        
+        <div id="noSearchResult" class="hidden flex-col items-center justify-center py-20 opacity-40">
+            <p class="text-sm" style="color: var(--nav-text);">未找到匹配的句子</p>
+        </div>
+    </main>
+
+    <!-- 添加按钮 -->
+    <button onclick="openAddModal()" class="fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg flex items-center justify-center z-40 transition-transform hover:scale-105 active:scale-95" 
+            style="background: var(--nav-text); color: var(--nav-bg);">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+    </button>
+
+    <!-- 批量操作工具栏 -->
+    <div id="batchToolbar" class="batch-toolbar">
+        <div class="max-w-2xl mx-auto w-full flex justify-between items-center px-4">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSelectAll()" class="text-sm font-medium" style="color: var(--nav-text);">全选</button>
+                <span id="selectedCount" class="text-sm opacity-50" style="color: var(--nav-text);">已选 0 项</span>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="exportSelected()" class="px-4 py-2 rounded-lg text-sm font-medium border" 
+                        style="border-color: var(--nav-border); color: var(--nav-text); background: var(--bg-color);">导出</button>
+                <button onclick="deleteSelected()" class="px-4 py-2 rounded-lg text-sm font-medium bg-red-50 text-red-600 hover:bg-red-100">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 设置弹窗 -->
+    <div id="settingsModal" class="hidden modal-overlay" onclick="if(event.target === this) closeModal('settingsModal')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-lg font-bold" style="color: var(--nav-text);">设置</h3>
+                <button onclick="closeModal('settingsModal')" class="opacity-40 hover:opacity-70" style="color: var(--nav-text);">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body hide-scrollbar">
+                <!-- 配色方案 -->
+                <div class="mb-6">
+                    <h4 class="text-sm font-medium mb-3 opacity-60" style="color: var(--nav-text);">配色方案</h4>
+                    <div class="theme-preset">
+                        <button onclick="setTheme('light')" class="preset-btn selected" id="theme-light" style="background: #ffffff; border: 1px solid #e5e5e5;" title="浅色"></button>
+                        <button onclick="setTheme('warm')" class="preset-btn" id="theme-warm" style="background: #faf8f5; border: 1px solid #e8e0d8;" title="暖色"></button>
+                        <button onclick="setTheme('dark')" class="preset-btn" id="theme-dark" style="background: #1a1a1a; border: 1px solid #333; color: white;" title="深色"></button>
+                        <button onclick="setTheme('green')" class="preset-btn" id="theme-green" style="background: #f5f7f4; border: 1px solid #d0d8d4;" title="护眼"></button>
+                    </div>
+                </div>
+                
+                <!-- 字体选择 -->
+                <div class="mb-6">
+                    <h4 class="text-sm font-medium mb-3 opacity-60" style="color: var(--nav-text);">字体</h4>
+                    <div class="space-y-2">
+                        <div class="font-option selected" onclick="setFont('noto-sans')" id="font-opt-noto-sans">
+                            <div class="radio-circle"></div>
+                            <div>
+                                <div class="font-medium text-sm">思源黑体</div>
+                                <div class="text-xs opacity-50">现代简洁，默认</div>
+                            </div>
+                        </div>
+                        
+                        <div class="font-option" onclick="setFont('noto-serif')" id="font-opt-noto-serif">
+                            <div class="radio-circle"></div>
+                            <div>
+                                <div class="font-medium text-sm">思源宋体</div>
+                                <div class="text-xs opacity-50">优雅正式</div>
+                            </div>
+                        </div>
+                        
+                        <div class="font-option" onclick="setFont('xiaowei')" id="font-opt-xiaowei">
+                            <div class="radio-circle"></div>
+                            <div>
+                                <div class="font-medium text-sm">站酷小薇</div>
+                                <div class="text-xs opacity-50">文艺手写</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 标签管理入口 -->
+                <div class="mb-6">
+                    <h4 class="text-sm font-medium mb-3 opacity-60" style="color: var(--nav-text);">标签管理</h4>
+                    <button onclick="openTagManageModal()" class="w-full py-3 rounded-xl border text-left px-4 flex items-center justify-between transition-colors mb-3" 
+                            style="border-color: var(--nav-border); background: var(--bg-color); color: var(--nav-text);">
+                        <span class="font-medium text-sm">管理标签</span>
+                        <svg class="w-5 h-5 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- 数据管理 -->
+                <div class="border-t pt-4 mb-6" style="border-color: var(--nav-border);">
+                    <h4 class="text-sm font-medium mb-3 opacity-60" style="color: var(--nav-text);">数据管理</h4>
+                    <button onclick="openImportExport()" class="w-full py-3 rounded-xl border text-sm font-medium mb-2 transition-colors" 
+                            style="border-color: var(--nav-border); background: var(--bg-color); color: var(--nav-text);">
+                        导入 / 导出数据
+                    </button>
+                    <button onclick="clearEmptySentences()" class="w-full py-3 rounded-xl border text-sm font-medium text-red-600 hover:bg-red-50 transition-colors" 
+                            style="border-color: var(--nav-border); background: var(--bg-color);">
+                        清除所有空句子
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 标签管理弹窗（独立） -->
+    <div id="tagManageModal" class="hidden modal-overlay" onclick="if(event.target === this) closeModal('tagManageModal')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-lg font-bold" style="color: var(--nav-text);">管理标签</h3>
+                <button onclick="closeModal('tagManageModal')" class="opacity-40 hover:opacity-70" style="color: var(--nav-text);">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body hide-scrollbar">
+                <p class="text-xs opacity-40 mb-3" style="color: var(--nav-text);">使用上下箭头调整顺序，点击 × 删除标签</p>
+                <div id="tagManageList" class="space-y-2">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导入导出弹窗 -->
+    <div id="importExportModal" class="hidden modal-overlay" onclick="if(event.target === this) closeModal('importExportModal')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-lg font-bold" style="color: var(--nav-text);">导入导出</h3>
+                <button onclick="closeModal('importExportModal')" class="opacity-40 hover:opacity-70" style="color: var(--nav-text);">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- 导入 -->
+                <div class="mb-6">
+                    <h4 class="text-sm font-medium mb-2 opacity-60" style="color: var(--nav-text);">批量导入</h4>
+                    <div class="space-y-2 mb-3">
+                        <textarea id="importText" class="w-full px-3 py-2 rounded-lg border text-sm resize-none" rows="3" 
+                                  style="background: var(--bg-color); border-color: var(--nav-border); color: var(--nav-text);" 
+                                  placeholder="每行一句&#10;标签格式：#标签1 #标签2&#10;例：你若安好，便是晴天 #文艺 #情感"></textarea>
+                        <div class="relative">
+                            <input type="file" id="importFile" accept=".txt" class="hidden" onchange="handleFileImport(this)">
+                            <button onclick="document.getElementById('importFile').click()" class="w-full py-2 rounded-lg border text-sm font-medium flex items-center justify-center gap-2" 
+                                    style="border-color: var(--nav-border); background: var(--bg-color); color: var(--nav-text);">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                从 TXT 文件导入
+                            </button>
+                        </div>
+                    </div>
+                    <button onclick="batchImport()" class="w-full py-2 rounded-lg text-sm font-medium" 
+                            style="background: var(--nav-text); color: var(--nav-bg);">导入文本</button>
+                </div>
+                
+                <!-- 导出 -->
+                <div class="border-t pt-4" style="border-color: var(--nav-border);">
+                    <h4 class="text-sm font-medium mb-2 opacity-60" style="color: var(--nav-text);">批量导出</h4>
+                    <div class="space-y-2 mb-3">
+                        <label class="flex items-center gap-2 text-sm" style="color: var(--nav-text);">
+                            <input type="checkbox" id="exportWithTags" checked class="rounded border-gray-300">
+                            包含标签
+                        </label>
+                        <select id="exportFilter" class="w-full px-3 py-2 rounded-lg border text-sm" 
+                                style="background: var(--bg-color); border-color: var(--nav-border); color: var(--nav-text);">
+                            <option value="all">全部句子</option>
+                            <option value="selected">当前选中的句子</option>
+                            <option value="filter">按标签筛选...</option>
+                        </select>
+                        <div id="exportTagSelect" class="hidden flex flex-wrap gap-2 mt-2"></div>
+                    </div>
+                    
+                    <div class="flex gap-2 mb-2">
+                        <button onclick="generateExport()" class="flex-1 py-2 rounded-lg text-sm border" 
+                                style="border-color: var(--nav-border); color: var(--nav-text); background: var(--bg-color);">生成</button>
+                        <button onclick="copyExport()" class="flex-1 py-2 rounded-lg text-sm font-medium" 
+                                style="background: var(--nav-text); color: var(--nav-bg);">复制</button>
+                    </div>
+                    <button onclick="downloadTxt()" class="w-full py-2 rounded-lg text-sm border mb-2" 
+                            style="border-color: var(--nav-border); color: var(--nav-text); background: var(--bg-color);">下载 TXT</button>
+                    
+                    <textarea id="exportResult" readonly class="w-full px-3 py-2 rounded-lg border text-xs resize-none" rows="3" 
+                              style="background: var(--bg-color); border-color: var(--nav-border); color: var(--nav-text);"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑句子弹窗 -->
+    <div id="sentenceModal" class="hidden modal-overlay" onclick="if(event.target === this) closeModal('sentenceModal')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-lg font-bold" id="modalTitle" style="color: var(--nav-text);">添加句子</h3>
+                <button onclick="closeModal('sentenceModal')" class="opacity-40 hover:opacity-70" style="color: var(--nav-text);">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2 opacity-60" style="color: var(--nav-text);">句子内容</label>
+                        <textarea id="sentenceText" class="w-full px-4 py-3 rounded-xl border focus:outline-none resize-none text-base leading-relaxed" 
+                                  style="background: var(--bg-color); border-color: var(--nav-border); color: var(--nav-text); min-height: 120px;" 
+                                  placeholder="输入优美的句子..." rows="4"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2 opacity-60" style="color: var(--nav-text);">标签</label>
+                        <div id="tagSelector" class="flex flex-wrap gap-2 mb-3"></div>
+                        <button onclick="openTagSelector()" class="text-sm opacity-60 hover:opacity-100 flex items-center gap-1 py-2 transition-opacity" style="color: var(--nav-text);">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            选择或创建标签
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t flex gap-3" style="border-color: var(--nav-border); background: var(--card-bg);">
+                <button onclick="closeModal('sentenceModal')" class="flex-1 py-3 rounded-xl border text-sm font-medium transition-colors" 
+                        style="border-color: var(--nav-border); color: var(--nav-text);">取消</button>
+                <button onclick="saveSentence()" class="flex-1 py-3 rounded-xl text-sm font-medium transition-colors" 
+                        style="background: var(--nav-text); color: var(--nav-bg);">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 标签选择弹窗 -->
+    <div id="tagModal" class="hidden modal-overlay" onclick="if(event.target === this) closeModal('tagModal')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-lg font-bold" style="color: var(--nav-text);">选择标签</h3>
+                <button onclick="closeModal('tagModal')" class="opacity-40 hover:opacity-70" style="color: var(--nav-text);">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-4">
+                    <input type="text" id="newTagName" class="w-full px-3 py-2 rounded-lg border text-sm mb-3" 
+                           style="background: var(--bg-color); border-color: var(--nav-border); color: var(--nav-text);" 
+                           placeholder="输入新标签名称">
+                    
+                    <div class="flex items-center gap-2 mb-3">
+                        <input type="color" id="colorPicker" value="#B8B0A8" class="w-10 h-10 rounded cursor-pointer border-0 p-0" 
+                               oninput="document.getElementById('colorHex').value = this.value.toUpperCase()">
+                        <input type="text" id="colorHex" value="#B8B0A8" maxlength="7" class="flex-1 px-3 py-2 rounded-lg border text-sm font-mono uppercase" 
+                               style="background: var(--bg-color); border-color: var(--nav-border); color: var(--nav-text);"
+                               oninput="if(this.value.match(/^#[0-9A-Fa-f]{6}$/)) document.getElementById('colorPicker').value = this.value">
+                    </div>
+                    
+                    <p class="text-xs opacity-50 mb-2" style="color: var(--nav-text);">推荐颜色（莫兰迪色系）</p>
+                    <div class="morandi-grid" id="morandiColors"></div>
+                    
+                    <button onclick="createNewTag()" class="mt-4 w-full py-2 rounded-lg text-sm font-medium" 
+                            style="background: var(--nav-text); color: var(--nav-bg);">创建标签</button>
+                </div>
+                
+                <div class="border-t pt-4" style="border-color: var(--nav-border);">
+                    <p class="text-xs opacity-50 mb-2" style="color: var(--nav-text);">已有标签</p>
+                    <div id="existingTags" class="flex flex-wrap gap-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详情弹窗 -->
+    <div id="detailModal" class="hidden modal-overlay" onclick="if(event.target === this) closeModal('detailModal')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="flex gap-2 flex-wrap" id="detailTags"></div>
+                <button onclick="closeModal('detailModal')" class="opacity-40 hover:opacity-70 ml-2" style="color: var(--nav-text);">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="detailText" class="text-lg leading-relaxed whitespace-pre-wrap" style="color: var(--nav-text); min-height: 100px;"></div>
+            </div>
+            <div class="p-4 border-t grid grid-cols-3 gap-3" style="border-color: var(--nav-border); background: var(--card-bg);">
+                <button onclick="editCurrentSentence()" class="flex flex-col items-center gap-1 p-3 rounded-xl transition-colors" 
+                        style="background: var(--bg-color); color: var(--nav-text);">
+                    <svg class="w-5 h-5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                    <span class="text-xs">编辑</span>
+                </button>
+                <button onclick="modifyTags()" class="flex flex-col items-center gap-1 p-3 rounded-xl transition-colors" 
+                        style="background: var(--bg-color); color: var(--nav-text);">
+                    <svg class="w-5 h-5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                    </svg>
+                    <span class="text-xs">标签</span>
+                </button>
+                <button onclick="deleteCurrentSentence()" class="flex flex-col items-center gap-1 p-3 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                    <span class="text-xs">删除</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示消息 -->
+    <div id="toast" class="hidden fixed top-20 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-sm shadow-lg z-[200] transition-opacity" 
+         style="background: var(--nav-text); color: var(--nav-bg);">
+        提示信息
+    </div>
+
+    <script>
+        // 数据存储
+        let sentences = JSON.parse(localStorage.getItem('sentences') || '[]');
+        let tags = JSON.parse(localStorage.getItem('tags') || '[]');
+        let currentFont = localStorage.getItem('currentFont') || 'noto-sans';
+        let currentTheme = localStorage.getItem('currentTheme') || 'light';
+        let currentEditingId = null;
+        let currentDetailId = null;
+        let selectedTags = [];
+        let currentFilter = 'all';
+        let cardsExpanded = false;
+        let batchMode = false;
+        let selectedForBatch = new Set();
+        let searchQuery = '';
+        
+        // 莫兰迪色系
+        const morandiColors = [
+            '#B8B0A8', '#9CA8B8', '#B8A89C', '#A8B8A8', '#B8A8B0', '#A8A8B8',
+            '#B8B8A0', '#A0B0B8', '#B8A090', '#90A0B8', '#A8B0A0', '#B0A8B8'
+        ];
+        
+        // 主题配置
+        const themes = {
+            light: { navBg: '#ffffff', navText: '#1a1a1a', navBorder: '#f0f0f0', bgColor: '#fafafa', cardBg: '#ffffff' },
+            warm: { navBg: '#faf8f5', navText: '#5c4b37', navBorder: '#e8e0d8', bgColor: '#f5f2ed', cardBg: '#faf8f5' },
+            dark: { navBg: '#1a1a1a', navText: '#e5e5e5', navBorder: '#333333', bgColor: '#0f0f0f', cardBg: '#1a1a1a' },
+            green: { navBg: '#f5f7f4', navText: '#2d3b2d', navBorder: '#d0d8d4', bgColor: '#f0f4ef', cardBg: '#f5f7f4' }
+        };
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+            setupEventListeners();
+            applyTheme(currentTheme);
+            applyFont(currentFont);
+        });
+        
+        function init() {
+            renderSentences();
+            renderMorandiColors();
+            loadTagFilter();
+            updateExpandIcon();
+        }
+        
+        function setupEventListeners() {
+            document.getElementById('filterBtn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.getElementById('filterDropdown').classList.toggle('hidden');
+            });
+            
+            document.addEventListener('click', () => {
+                document.getElementById('filterDropdown').classList.add('hidden');
+            });
+            
+            document.getElementById('exportFilter').addEventListener('change', (e) => {
+                const div = document.getElementById('exportTagSelect');
+                if (e.target.value === 'filter') {
+                    div.classList.remove('hidden');
+                    renderExportTags();
+                } else {
+                    div.classList.add('hidden');
+                }
+            });
+        }
+        
+        // 搜索模式切换
+        function enterSearchMode() {
+            document.getElementById('normalNav').style.display = 'none';
+            document.getElementById('searchNav').classList.add('active');
+            document.getElementById('searchInput').focus();
+        }
+        
+        function exitSearchMode() {
+            document.getElementById('searchNav').classList.remove('active');
+            document.getElementById('normalNav').style.display = 'block';
+            document.getElementById('searchInput').value = '';
+            handleSearch('');
+        }
+        
+        function handleSearch(query) {
+            searchQuery = query.toLowerCase().trim();
+            renderSentences();
+        }
+        
+        // 展开/折叠卡片
+        function toggleCardExpand() {
+            cardsExpanded = !cardsExpanded;
+            updateExpandIcon();
+            renderSentences();
+        }
+        
+        function updateExpandIcon() {
+            const icon = document.getElementById('expandIcon');
+            icon.style.transform = cardsExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
+        }
+        
+        // 打开设置
+        function openSettings() {
+            document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('selected'));
+            document.getElementById(`theme-${currentTheme}`)?.classList.add('selected');
+            
+            document.querySelectorAll('.font-option').forEach(opt => opt.classList.remove('selected'));
+            document.getElementById(`font-opt-${currentFont}`)?.classList.add('selected');
+            
+            document.getElementById('settingsModal').classList.remove('hidden');
+        }
+        
+        // 打开标签管理弹窗
+        function openTagManageModal() {
+            renderTagManageList();
+            closeModal('settingsModal');
+            document.getElementById('tagManageModal').classList.remove('hidden');
+        }
+        
+        // 渲染标签管理列表（上下箭头排序）
+        function renderTagManageList() {
+            const container = document.getElementById('tagManageList');
+            if (tags.length === 0) {
+                container.innerHTML = '<span class="text-sm opacity-40" style="color: var(--nav-text);">暂无标签</span>';
+                return;
+            }
+            
+            container.innerHTML = tags.map((tag, index) => `
+                <div class="tag-manage-item">
+                    <div class="tag-color-dot" style="background-color: ${tag.color};"></div>
+                    <div class="tag-name">${tag.name}</div>
+                    <div class="tag-actions">
+                        <div class="tag-action-btn ${index === 0 ? 'opacity-20 pointer-events-none' : ''}" 
+                             onclick="moveTag(${index}, -1)" title="上移">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--nav-text);">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                            </svg>
+                        </div>
+                        <div class="tag-action-btn ${index === tags.length - 1 ? 'opacity-20 pointer-events-none' : ''}" 
+                             onclick="moveTag(${index}, 1)" title="下移">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--nav-text);">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                        <div class="tag-action-btn" onclick="deleteTag('${tag.id}')" title="删除标签">
+                            <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 移动标签顺序
+        function moveTag(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= tags.length) return;
+            
+            // 交换位置
+            const temp = tags[index];
+            tags[index] = tags[newIndex];
+            tags[newIndex] = temp;
+            
+            saveData();
+            renderTagManageList();
+            loadTagFilter();
+        }
+        
+        // 删除标签
+        function deleteTag(tagId) {
+            const tag = tags.find(t => t.id === tagId);
+            if (!tag) return;
+            
+            const usedCount = sentences.filter(s => s.tags.includes(tagId)).length;
+            let confirmMsg = `确定删除标签"${tag.name}"？`;
+            if (usedCount > 0) {
+                confirmMsg += `\n\n该标签被 ${usedCount} 个句子使用，删除后这些句子将不再带有此标签。`;
+            }
+            
+            if (!confirm(confirmMsg)) return;
+            
+            sentences.forEach(s => {
+                s.tags = s.tags.filter(id => id !== tagId);
+            });
+            
+            tags = tags.filter(t => t.id !== tagId);
+            
+            if (currentFilter === tagId) {
+                currentFilter = 'all';
+                document.getElementById('currentFilter').textContent = '全部';
+            }
+            
+            saveData();
+            renderTagManageList();
+            loadTagFilter();
+            renderSentences();
+            showToast('标签已删除');
+        }
+        
+        // 清除空句子
+        function clearEmptySentences() {
+            const emptyCount = sentences.filter(s => !s.text || s.text.trim() === '').length;
+            if (emptyCount === 0) {
+                showToast('没有空句子需要清除');
+                return;
+            }
+            
+            if (!confirm(`确定清除 ${emptyCount} 条空句子吗？`)) return;
+            
+            sentences = sentences.filter(s => s.text && s.text.trim() !== '');
+            saveData();
+            renderSentences();
+            showToast(`已清除 ${emptyCount} 条空句子`);
+        }
+        
+        // 主题管理
+        function setTheme(themeName) {
+            currentTheme = themeName;
+            localStorage.setItem('currentTheme', themeName);
+            applyTheme(themeName);
+            
+            document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('selected'));
+            document.getElementById(`theme-${themeName}`)?.classList.add('selected');
+        }
+        
+        function applyTheme(themeName) {
+            const theme = themes[themeName];
+            if (!theme) return;
+            
+            const root = document.documentElement;
+            root.style.setProperty('--nav-bg', theme.navBg);
+            root.style.setProperty('--nav-text', theme.navText);
+            root.style.setProperty('--nav-border', theme.navBorder);
+            root.style.setProperty('--bg-color', theme.bgColor);
+            root.style.setProperty('--card-bg', theme.cardBg);
+        }
+        
+        // 字体管理
+        function setFont(fontName) {
+            currentFont = fontName;
+            localStorage.setItem('currentFont', fontName);
+            applyFont(fontName);
+            
+            document.querySelectorAll('.font-option').forEach(opt => opt.classList.remove('selected'));
+            document.getElementById(`font-opt-${fontName}`)?.classList.add('selected');
+            
+            showToast('字体已更换');
+        }
+        
+        function applyFont(fontName) {
+            document.body.className = document.body.className.replace(/font-\w+/g, '');
+            document.body.classList.add(`font-${fontName}`);
+        }
+        
+        // 多选模式
+        function toggleBatchMode() {
+            batchMode = !batchMode;
+            selectedForBatch.clear();
+            const btn = document.getElementById('batchModeBtn');
+            
+            if (batchMode) {
+                btn.style.background = 'var(--nav-text)';
+                btn.style.color = 'var(--nav-bg)';
+                document.getElementById('batchToolbar').classList.add('active');
+                showToast('点击卡片进行选择，长按可查看详情');
+            } else {
+                btn.style.background = 'var(--bg-color)';
+                btn.style.color = 'var(--nav-text)';
+                document.getElementById('batchToolbar').classList.remove('active');
+            }
+            
+            renderSentences();
+        }
+        
+        function toggleSelectAll() {
+            const visibleIds = getVisibleSentences().map(s => s.id);
+            
+            if (selectedForBatch.size === visibleIds.length) {
+                selectedForBatch.clear();
+            } else {
+                visibleIds.forEach(id => selectedForBatch.add(id));
+            }
+            
+            renderSentences();
+            updateBatchToolbar();
+        }
+        
+        function getVisibleSentences() {
+            let filtered = sentences;
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(s => s.tags.includes(currentFilter));
+            }
+            if (searchQuery) {
+                filtered = filtered.filter(s => s.text.toLowerCase().includes(searchQuery));
+            }
+            return filtered;
+        }
+        
+        function updateBatchToolbar() {
+            document.getElementById('selectedCount').textContent = `已选 ${selectedForBatch.size} 项`;
+        }
+        
+        function toggleBatchSelection(id) {
+            if (!batchMode) return;
+            
+            if (selectedForBatch.has(id)) {
+                selectedForBatch.delete(id);
+            } else {
+                selectedForBatch.add(id);
+            }
+            
+            renderSentences();
+            updateBatchToolbar();
+        }
+        
+        function deleteSelected() {
+            if (selectedForBatch.size === 0) {
+                showToast('请先选择句子');
+                return;
+            }
+            
+            if (!confirm(`确定删除选中的 ${selectedForBatch.size} 条句子？`)) return;
+            
+            sentences = sentences.filter(s => !selectedForBatch.has(s.id));
+            saveData();
+            selectedForBatch.clear();
+            toggleBatchMode();
+            renderSentences();
+            showToast('已删除');
+        }
+        
+        function exportSelected() {
+            if (selectedForBatch.size === 0) {
+                showToast('请先选择句子');
+                return;
+            }
+            
+            document.getElementById('importExportModal').classList.remove('hidden');
+            document.getElementById('exportFilter').value = 'selected';
+            generateExport();
+        }
+        
+        // 计算颜色亮度，返回黑色或白色文字
+        function getContrastColor(hexColor) {
+            const r = parseInt(hexColor.slice(1, 3), 16);
+            const g = parseInt(hexColor.slice(3, 5), 16);
+            const b = parseInt(hexColor.slice(5, 7), 16);
+            const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+            return brightness > 128 ? '#1a1a1a' : '#ffffff';
+        }
+        
+        // 渲染句子
+        function renderSentences() {
+            const container = document.getElementById('sentencesList');
+            const empty = document.getElementById('emptyState');
+            const noSearch = document.getElementById('noSearchResult');
+            
+            let filtered = getVisibleSentences();
+            filtered.sort((a, b) => b.createdAt - a.createdAt);
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '';
+                if (searchQuery) {
+                    noSearch.classList.remove('hidden');
+                    noSearch.classList.add('flex');
+                    empty.classList.add('hidden');
+                    empty.classList.remove('flex');
+                } else {
+                    empty.classList.remove('hidden');
+                    empty.classList.add('flex');
+                    noSearch.classList.add('hidden');
+                    noSearch.classList.remove('flex');
+                }
+                return;
+            }
+            
+            empty.classList.add('hidden');
+            noSearch.classList.add('hidden');
+            
+            container.innerHTML = filtered.map(s => {
+                const tagColors = s.tags.map(tagId => {
+                    const tag = tags.find(t => t.id === tagId);
+                    return tag ? tag.color : '#e6eae7';
+                });
+                
+                let borderClass = 'tag-border';
+                let borderStyle = `--tag-color: ${tagColors[0] || '#e6eae7'}`;
+                
+                if (tagColors.length > 1) {
+                    borderClass += ' multi-tag';
+                    const gradient = tagColors.map((c, i) => `${c} ${(i / tagColors.length) * 100}% ${((i + 1) / tagColors.length) * 100}%`).join(', ');
+                    borderStyle = `--gradient-bg: linear-gradient(135deg, ${gradient})`;
+                }
+                
+                const isSelected = selectedForBatch.has(s.id);
+                const expandClass = cardsExpanded ? 'expanded' : 'collapsed';
+                const batchCheck = batchMode ? `
+                    <div class="batch-checkbox ${isSelected ? 'checked' : ''}" onclick="event.stopPropagation(); toggleBatchSelection('${s.id}')"></div>
+                ` : '';
+                
+                return `
+                    <div class="${borderClass} card-shadow rounded-xl p-4 relative overflow-hidden select-none ${isSelected ? 'ring-2' : ''}" 
+                         style="${borderStyle}; background: var(--card-bg); --tw-ring-color: var(--nav-text);"
+                         data-id="${s.id}"
+                         onclick="${batchMode ? `toggleBatchSelection('${s.id}')` : `openDetailModal('${s.id}')`}">
+                        ${batchCheck}
+                        <p class="sentence-text ${expandClass}" style="color: var(--nav-text);">${escapeHtml(s.text)}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 弹窗操作
+        function openAddModal() {
+            currentEditingId = null;
+            selectedTags = [];
+            
+            if (currentFilter !== 'all') {
+                selectedTags = [currentFilter];
+            }
+            
+            document.getElementById('modalTitle').textContent = '添加句子';
+            document.getElementById('sentenceText').value = '';
+            renderSelectedTags();
+            document.getElementById('sentenceModal').classList.remove('hidden');
+        }
+        
+        function openDetailModal(id) {
+            currentDetailId = id;
+            const s = sentences.find(s => s.id === id);
+            if (!s) return;
+            
+            document.getElementById('detailText').textContent = s.text;
+            
+            const tagsContainer = document.getElementById('detailTags');
+            tagsContainer.innerHTML = s.tags.map(tagId => {
+                const tag = tags.find(t => t.id === tagId);
+                if (!tag) return '';
+                const textColor = getContrastColor(tag.color);
+                return `<span class="tag-badge" style="background-color: ${tag.color}; color: ${textColor};">${tag.name}</span>`;
+            }).join('');
+            
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+        
+        function openTagSelector() {
+            renderExistingTags();
+            document.getElementById('tagModal').classList.remove('hidden');
+        }
+        
+        function openImportExport() {
+            closeModal('settingsModal');
+            document.getElementById('importExportModal').classList.remove('hidden');
+        }
+        
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+        
+        function deleteCurrentSentence() {
+            if (!currentDetailId) return;
+            if (!confirm('确定删除这条句子？')) return;
+            
+            sentences = sentences.filter(s => s.id !== currentDetailId);
+            saveData();
+            closeModal('detailModal');
+            renderSentences();
+            showToast('已删除');
+        }
+        
+        // 颜色标签
+        function renderMorandiColors() {
+            const container = document.getElementById('morandiColors');
+            container.innerHTML = morandiColors.map(color => `
+                <div class="morandi-color" style="background: ${color}" onclick="selectColor('${color}')"></div>
+            `).join('');
+        }
+        
+        function selectColor(color) {
+            document.getElementById('colorPicker').value = color;
+            document.getElementById('colorHex').value = color;
+            
+            document.querySelectorAll('.morandi-color').forEach(el => el.classList.remove('selected'));
+            event.target.classList.add('selected');
+        }
+        
+        function renderExistingTags() {
+            const container = document.getElementById('existingTags');
+            if (tags.length === 0) {
+                container.innerHTML = '<span class="text-sm opacity-40" style="color: var(--nav-text);">暂无标签</span>';
+                return;
+            }
+            
+            container.innerHTML = tags.map(tag => {
+                const isSelected = selectedTags.includes(tag.id);
+                const textColor = getContrastColor(tag.color);
+                return `
+                    <button onclick="toggleTagSelection('${tag.id}')" 
+                            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm border transition-all"
+                            style="background: ${isSelected ? tag.color : 'var(--bg-color)'}; color: ${isSelected ? textColor : 'var(--nav-text)'}; border-color: ${tag.color};">
+                        ${tag.name}
+                    </button>
+                `;
+            }).join('');
+        }
+        
+        function renderSelectedTags() {
+            const container = document.getElementById('tagSelector');
+            if (selectedTags.length === 0) {
+                container.innerHTML = '<span class="text-sm opacity-40" style="color: var(--nav-text);">未选择标签</span>';
+                return;
+            }
+            
+            container.innerHTML = selectedTags.map(tagId => {
+                const tag = tags.find(t => t.id === tagId);
+                if (!tag) return '';
+                const textColor = getContrastColor(tag.color);
+                return `
+                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs tag-badge" 
+                          style="background-color: ${tag.color}; color: ${textColor};">
+                        ${tag.name}
+                        <button onclick="event.stopPropagation(); toggleTagSelection('${tag.id}')" class="ml-1 opacity-70 hover:opacity-100">×</button>
+                    </span>
+                `;
+            }).join('');
+        }
+        
+        function toggleTagSelection(tagId) {
+            if (selectedTags.includes(tagId)) {
+                selectedTags = selectedTags.filter(id => id !== tagId);
+            } else {
+                selectedTags.push(tagId);
+            }
+            renderExistingTags();
+            renderSelectedTags();
+        }
+        
+        function createNewTag() {
+            const name = document.getElementById('newTagName').value.trim();
+            const color = document.getElementById('colorHex').value;
+            
+            if (!name) {
+                showToast('请输入标签名称');
+                return;
+            }
+            
+            const existing = tags.find(t => t.name === name);
+            if (existing) {
+                if (!selectedTags.includes(existing.id)) {
+                    selectedTags.push(existing.id);
+                    renderExistingTags();
+                    renderSelectedTags();
+                }
+                document.getElementById('newTagName').value = '';
+                return;
+            }
+            
+            const newTag = {
+                id: Date.now().toString(),
+                name: name,
+                color: color
+            };
+            
+            tags.push(newTag);
+            selectedTags.push(newTag.id);
+            saveData();
+            
+            document.getElementById('newTagName').value = '';
+            renderExistingTags();
+            renderSelectedTags();
+            loadTagFilter();
+        }
+        
+        function saveSentence() {
+            const text = document.getElementById('sentenceText').value.trim();
+            if (!text) {
+                showToast('请输入句子内容');
+                return;
+            }
+            
+            if (currentEditingId) {
+                const index = sentences.findIndex(s => s.id === currentEditingId);
+                if (index !== -1) {
+                    sentences[index].text = text;
+                    sentences[index].tags = [...selectedTags];
+                }
+            } else {
+                sentences.unshift({
+                    id: Date.now().toString(),
+                    text: text,
+                    tags: [...selectedTags],
+                    createdAt: Date.now()
+                });
+            }
+            
+            saveData();
+            renderSentences();
+            closeModal('sentenceModal');
+            showToast(currentEditingId ? '已更新' : '已添加');
+        }
+        
+        function editCurrentSentence() {
+            closeModal('detailModal');
+            const s = sentences.find(s => s.id === currentDetailId);
+            if (!s) return;
+            
+            currentEditingId = s.id;
+            selectedTags = [...s.tags];
+            document.getElementById('modalTitle').textContent = '编辑句子';
+            document.getElementById('sentenceText').value = s.text;
+            renderSelectedTags();
+            document.getElementById('sentenceModal').classList.remove('hidden');
+        }
+        
+        function modifyTags() {
+            closeModal('detailModal');
+            editCurrentSentence();
+            openTagSelector();
+        }
+        
+        // 过滤
+        function loadTagFilter() {
+            const container = document.getElementById('tagFilterList');
+            if (tags.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            container.innerHTML = tags.map(tag => `
+                <button onclick="filterByTag('${tag.id}')" class="w-full text-left px-4 py-2 hover:opacity-70 text-sm flex items-center gap-2 transition-colors" style="color: var(--nav-text);">
+                    <span class="w-2 h-2 rounded-full" style="background: ${tag.color}"></span>
+                    ${tag.name}
+                </button>
+            `).join('');
+        }
+        
+        function filterByTag(tagId) {
+            currentFilter = tagId;
+            document.getElementById('currentFilter').textContent = tagId === 'all' ? '全部' : tags.find(t => t.id === tagId)?.name || '全部';
+            document.getElementById('filterDropdown').classList.add('hidden');
+            renderSentences();
+        }
+        
+        // 文件导入
+        function handleFileImport(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                document.getElementById('importText').value = content;
+                batchImport();
+                input.value = '';
+            };
+            reader.readAsText(file);
+        }
+        
+        // 导入导出
+        function batchImport() {
+            const text = document.getElementById('importText').value.trim();
+            if (!text) {
+                showToast('请输入要导入的文本');
+                return;
+            }
+            
+            const lines = text.split('\n');
+            let count = 0;
+            
+            lines.forEach(line => {
+                line = line.trim();
+                if (!line) return;
+                
+                const tagMatches = line.match(/#\S+/g) || [];
+                const tagNames = tagMatches.map(t => t.substring(1));
+                let sentenceText = line.replace(/#\S+/g, '').trim();
+                
+                if (!sentenceText) return;
+                
+                const sentenceTags = tagNames.map(name => {
+                    let tag = tags.find(t => t.name === name);
+                    if (!tag) {
+                        const color = morandiColors[Math.floor(Math.random() * morandiColors.length)];
+                        tag = { id: Date.now().toString() + Math.random(), name, color };
+                        tags.push(tag);
+                    }
+                    return tag.id;
+                });
+                
+                sentences.unshift({
+                    id: Date.now().toString() + Math.random(),
+                    text: sentenceText,
+                    tags: sentenceTags,
+                    createdAt: Date.now()
+                });
+                
+                count++;
+            });
+            
+            saveData();
+            renderSentences();
+            loadTagFilter();
+            document.getElementById('importText').value = '';
+            showToast(`成功导入 ${count} 条句子`);
+        }
+        
+        function renderExportTags() {
+            const container = document.getElementById('exportTagSelect');
+            container.innerHTML = tags.map(tag => `
+                <label class="inline-flex items-center gap-1 text-sm cursor-pointer px-2 py-1 rounded" style="background: var(--bg-color); color: var(--nav-text);">
+                    <input type="checkbox" value="${tag.id}" class="export-tag-checkbox rounded border-gray-300">
+                    <span>${tag.name}</span>
+                </label>
+            `).join('');
+        }
+        
+        function generateExport() {
+            const withTags = document.getElementById('exportWithTags').checked;
+            const filter = document.getElementById('exportFilter').value;
+            let toExport = sentences;
+            
+            if (filter === 'selected') {
+                if (selectedForBatch.size === 0 && !batchMode) {
+                    showToast('未选择任何句子');
+                    return;
+                }
+                toExport = sentences.filter(s => selectedForBatch.has(s.id));
+            } else if (filter === 'filter') {
+                const checkedIds = Array.from(document.querySelectorAll('.export-tag-checkbox:checked')).map(cb => cb.value);
+                if (checkedIds.length === 0) {
+                    showToast('请至少选择一个标签');
+                    return;
+                }
+                toExport = sentences.filter(s => s.tags.some(t => checkedIds.includes(t)));
+            }
+            
+            let result = '';
+            toExport.forEach(s => {
+                if (withTags && s.tags.length > 0) {
+                    const tagStr = s.tags.map(tagId => {
+                        const tag = tags.find(t => t.id === tagId);
+                        return tag ? `#${tag.name}` : '';
+                    }).join(' ');
+                    result += `${s.text} ${tagStr}\n`;
+                } else {
+                    result += s.text + '\n';
+                }
+            });
+            
+            document.getElementById('exportResult').value = result.trim();
+            return result.trim();
+        }
+        
+        function copyExport() {
+            const text = document.getElementById('exportResult').value;
+            if (!text) {
+                showToast('请先生成导出内容');
+                return;
+            }
+            
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('已复制');
+                }).catch(() => {
+                    fallbackCopyText(text);
+                });
+            } else {
+                fallbackCopyText(text);
+            }
+        }
+        
+        function fallbackCopyText(text) {
+            try {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0;pointer-events:none;';
+                document.body.appendChild(textArea);
+                
+                textArea.focus();
+                textArea.select();
+                textArea.setSelectionRange(0, text.length);
+                
+                const successful = document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                if (successful) {
+                    showToast('已复制');
+                } else {
+                    showToast('复制失败，请手动复制');
+                }
+            } catch (err) {
+                showToast('复制失败，请手动复制');
+            }
+        }
+        
+        function downloadTxt() {
+            let text = document.getElementById('exportResult').value;
+            if (!text) {
+                text = generateExport();
+                if (!text) return;
+                text = document.getElementById('exportResult').value;
+            }
+            
+            const BOM = '\uFEFF';
+            const blob = new Blob([BOM + text], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `雅俗共赏_${new Date().toLocaleDateString()}.txt`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            showToast('TXT已下载');
+        }
+        
+        function saveData() {
+            try {
+                localStorage.setItem('sentences', JSON.stringify(sentences));
+                localStorage.setItem('tags', JSON.stringify(tags));
+            } catch (e) {
+                if (e.name === 'QuotaExceededError') {
+                    showToast('存储空间不足');
+                }
+            }
+        }
+        
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 2000);
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
