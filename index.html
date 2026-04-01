@@ -1160,7 +1160,10 @@
     </div>
 
     <script>
-        // 数据存储
+        // 数据存储 - IndexedDB 版本（容量更大 50MB+）
+        let db = null;
+        const DB_NAME = 'YasuDB';
+        const DB_VERSION = 1;
         let sentences = [];
         let tags = [];
         let customColors = [];
@@ -1186,48 +1189,81 @@
             '#C4B8B0', '#A8B4C4', '#B4C4A8', '#C4A8B4', '#A8C4B8', '#B8C4A8'
         ];
         
-        // 简化的数据加载 - 直接使用 try-catch，不做前置检测
-        function loadData() {
+        // 初始化 IndexedDB
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                
+                request.onerror = () => {
+                    console.error('IndexedDB 打开失败');
+                    resolve(false);
+                };
+                
+                request.onsuccess = (event) => {
+                    db = event.target.result;
+                    resolve(true);
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    const database = event.target.result;
+                    if (!database.objectStoreNames.contains('data')) {
+                        database.createObjectStore('data', { keyPath: 'key' });
+                    }
+                };
+            });
+        }
+        
+        // IndexedDB 保存
+        async function saveToDB(key, value) {
+            if (!db) return;
             try {
-                const savedSentences = localStorage.getItem('sentences');
-                const savedTags = localStorage.getItem('tags');
-                const savedCustomColors = localStorage.getItem('customColors');
-                const savedDeletedPresets = localStorage.getItem('deletedPresetColors');
-                
-                if (savedSentences) sentences = JSON.parse(savedSentences);
-                if (savedTags) tags = JSON.parse(savedTags);
-                if (savedCustomColors) customColors = JSON.parse(savedCustomColors);
-                if (savedDeletedPresets) deletedPresetColors = JSON.parse(savedDeletedPresets);
-                
-                // 验证数据完整性
-                if (!Array.isArray(sentences)) sentences = [];
-                if (!Array.isArray(tags)) tags = [];
-                if (!Array.isArray(customColors)) customColors = [];
-                if (!Array.isArray(deletedPresetColors)) deletedPresetColors = [];
-                
+                const transaction = db.transaction(['data'], 'readwrite');
+                const store = transaction.objectStore('data');
+                await store.put({ key, value });
             } catch (e) {
-                console.error('数据加载失败', e);
-                // 初始化为空数组
-                sentences = [];
-                tags = [];
-                customColors = [];
-                deletedPresetColors = [];
+                console.error('保存失败', e);
             }
         }
         
-        // 简化的数据保存 - 直接使用 try-catch
-        function saveData() {
+        // IndexedDB 读取
+        async function loadFromDB(key, defaultValue = []) {
+            if (!db) return defaultValue;
             try {
-                localStorage.setItem('sentences', JSON.stringify(sentences));
-                localStorage.setItem('tags', JSON.stringify(tags));
-                localStorage.setItem('customColors', JSON.stringify(customColors));
-                localStorage.setItem('deletedPresetColors', JSON.stringify(deletedPresetColors));
+                const transaction = db.transaction(['data'], 'readonly');
+                const store = transaction.objectStore('data');
+                const request = store.get(key);
+                
+                return new Promise((resolve) => {
+                    request.onsuccess = () => {
+                        resolve(request.result ? request.result.value : defaultValue);
+                    };
+                    request.onerror = () => resolve(defaultValue);
+                });
             } catch (e) {
-                console.error('保存失败', e);
-                if (e.name === 'QuotaExceededError') {
-                    showToast('存储空间不足，请导出备份后清理数据');
-                }
+                return defaultValue;
             }
+        }
+        
+        // 保存所有数据
+        async function saveData() {
+            await saveToDB('sentences', sentences);
+            await saveToDB('tags', tags);
+            await saveToDB('customColors', customColors);
+            await saveToDB('deletedPresetColors', deletedPresetColors);
+        }
+        
+        // 加载所有数据
+        async function loadData() {
+            sentences = await loadFromDB('sentences', []);
+            tags = await loadFromDB('tags', []);
+            customColors = await loadFromDB('customColors', []);
+            deletedPresetColors = await loadFromDB('deletedPresetColors', []);
+            
+            // 验证数据
+            if (!Array.isArray(sentences)) sentences = [];
+            if (!Array.isArray(tags)) tags = [];
+            if (!Array.isArray(customColors)) customColors = [];
+            if (!Array.isArray(deletedPresetColors)) deletedPresetColors = [];
         }
         
         function getPresetColors() {
@@ -1249,26 +1285,26 @@
             mint: { navBg: '#f5f8f6', navText: '#4a5d52', navBorder: '#e3ebe6', bgColor: '#f0f5f2', cardBg: '#f5f8f6' }
         };
         
-        document.addEventListener('DOMContentLoaded', () => {
-            init();
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initDB();
+            await init();
             setupEventListeners();
             applyTheme(currentTheme);
             applyFont(currentFont);
             
-            // 页面关闭前保存
             window.addEventListener('beforeunload', () => {
                 saveData();
             });
         });
         
-        function init() {
+        async function init() {
             // 加载设置
             try {
                 currentFont = localStorage.getItem('currentFont') || 'noto-sans';
                 currentTheme = localStorage.getItem('currentTheme') || 'light';
             } catch (e) {}
             
-            loadData();
+            await loadData();
             renderSentences();
             loadTagFilter();
             updateExpandIcon();
