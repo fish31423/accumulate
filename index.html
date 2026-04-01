@@ -607,25 +607,52 @@
             transform: scale(0.95);
         }
         
-        /* 按钮点击动画优化 */
         button, .tag-action-btn, .morandi-color, .preset-btn, .font-option {
             -webkit-tap-highlight-color: transparent;
         }
         
-        /* 颜色选择器专用层级 - 修复覆盖问题 */
         #colorPickerModal {
             z-index: 200;
         }
         
-        /* 过渡动画优化 */
         .transition-colors {
             transition-property: background-color, border-color, color, fill, stroke;
             transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
             transition-duration: 200ms;
         }
+        
+        /* 数据状态提示样式 */
+        .storage-warning {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff3cd;
+            color: #856404;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 150;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .storage-warning.visible {
+            display: flex;
+        }
     </style>
 </head>
 <body class="font-noto-sans pb-20">
+
+    <!-- 存储警告提示 -->
+    <div id="storageWarning" class="storage-warning">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        </svg>
+        <span>存储空间可能已满，建议导出备份数据</span>
+    </div>
 
     <!-- 顶部导航 -->
     <header id="normalNav" class="fixed top-0 left-0 right-0 z-50 px-4 py-3" style="background: var(--nav-bg); border-bottom: 1px solid var(--nav-border);">
@@ -832,7 +859,6 @@
             <div class="modal-header">
                 <h3 class="text-lg font-bold" style="color: var(--nav-text);">管理标签</h3>
                 <div class="flex items-center gap-3">
-                    <!-- 新增：新建标签按钮 -->
                     <button onclick="openNewTagFromManage()" class="flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 hover:shadow-md active:scale-95" 
                             style="background: var(--nav-text); color: var(--nav-bg);">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -840,7 +866,6 @@
                         </svg>
                         新建
                     </button>
-                    <!-- 关闭按钮改为返回设置 -->
                     <button onclick="closeTagManageModal()" class="opacity-40 hover:opacity-70 transition-opacity active:scale-95" style="color: var(--nav-text);">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -855,7 +880,7 @@
         </div>
     </div>
 
-    <!-- 通用颜色选择弹窗（标签管理和新建标签共用）- 提高z-index确保在最上层 -->
+    <!-- 通用颜色选择弹窗 -->
     <div id="colorPickerModal" class="hidden modal-overlay" style="z-index: 200;" onclick="if(event.target === this) closeModal('colorPickerModal')">
         <div class="modal-content" style="max-width: 320px;">
             <div class="modal-header">
@@ -890,12 +915,11 @@
         </div>
     </div>
 
-    <!-- 颜色管理弹窗 - 关闭时返回设置 -->
+    <!-- 颜色管理弹窗 -->
     <div id="colorManageModal" class="hidden modal-overlay" onclick="if(event.target === this) closeColorManageModal()">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="text-lg font-bold" style="color: var(--nav-text);">管理颜色</h3>
-                <!-- 关闭按钮改为返回设置 -->
                 <button onclick="closeColorManageModal()" class="opacity-40 hover:opacity-70 transition-opacity active:scale-95" style="color: var(--nav-text);">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -1008,7 +1032,7 @@
         </div>
     </div>
 
-    <!-- 添加/编辑句子弹窗（不含评论） -->
+    <!-- 添加/编辑句子弹窗 -->
     <div id="sentenceModal" class="hidden modal-overlay" onclick="if(event.target === this) closeModal('sentenceModal')">
         <div class="modal-content">
             <div class="modal-header">
@@ -1048,7 +1072,7 @@
         </div>
     </div>
 
-    <!-- 新建标签弹窗（简化版，颜色选择交给通用颜色选择器） -->
+    <!-- 新建标签弹窗 -->
     <div id="tagModal" class="hidden modal-overlay" onclick="if(event.target === this) closeModal('tagModal')">
         <div class="modal-content">
             <div class="modal-header">
@@ -1084,7 +1108,7 @@
         </div>
     </div>
 
-    <!-- 详情弹窗（始终四个选项） -->
+    <!-- 详情弹窗 -->
     <div id="detailModal" class="hidden modal-overlay" onclick="if(event.target === this) closeModal('detailModal')">
         <div class="modal-content">
             <div class="modal-header">
@@ -1134,7 +1158,7 @@
         </div>
     </div>
 
-    <!-- 评论编辑弹窗（独立） -->
+    <!-- 评论编辑弹窗 -->
     <div id="commentModal" class="hidden modal-overlay" onclick="if(event.target === this) closeCommentModal()">
         <div class="modal-content">
             <div class="modal-header">
@@ -1166,32 +1190,17 @@
     </div>
 
     <script>
-        // 数据存储
+        // 数据存储 - 使用 let 声明，确保可以被重新赋值
         let sentences = [];
         let tags = [];
         let customColors = [];
         let deletedPresetColors = [];
         let currentEditingTagId = null;
         let newTagColorPickerCallback = null;
-        // 标记是否从标签管理打开的新建标签弹窗
         let fromTagManage = false;
         
-        try {
-            const savedSentences = localStorage.getItem('sentences');
-            const savedTags = localStorage.getItem('tags');
-            const savedCustomColors = localStorage.getItem('customColors');
-            const savedDeletedPresets = localStorage.getItem('deletedPresetColors');
-            
-            if (savedSentences) sentences = JSON.parse(savedSentences);
-            if (savedTags) tags = JSON.parse(savedTags);
-            if (savedCustomColors) customColors = JSON.parse(savedCustomColors);
-            if (savedDeletedPresets) deletedPresetColors = JSON.parse(savedDeletedPresets);
-        } catch (e) {
-            console.error('数据加载失败', e);
-        }
-        
-        let currentFont = localStorage.getItem('currentFont') || 'noto-sans';
-        let currentTheme = localStorage.getItem('currentTheme') || 'light';
+        let currentFont = 'noto-sans';
+        let currentTheme = 'light';
         let currentEditingId = null;
         let currentDetailId = null;
         let selectedTags = [];
@@ -1200,12 +1209,189 @@
         let batchMode = false;
         let selectedForBatch = new Set();
         let searchQuery = '';
+        let isStorageAvailable = false;
         
         const defaultMorandiColors = [
             '#B8B0A8', '#9CA8B8', '#B8A89C', '#A8B8A8', '#B8A8B0', '#A8A8B8',
             '#B8B8A0', '#A0B0B8', '#B8A090', '#90A0B8', '#A8B0A0', '#B0A8B8',
             '#C4B8B0', '#A8B4C4', '#B4C4A8', '#C4A8B4', '#A8C4B8', '#B8C4A8'
         ];
+        
+        // 检查存储空间是否可用
+        function checkStorage() {
+            try {
+                const test = '__storage_test__';
+                localStorage.setItem(test, test);
+                localStorage.removeItem(test);
+                isStorageAvailable = true;
+                return true;
+            } catch (e) {
+                isStorageAvailable = false;
+                document.getElementById('storageWarning').classList.add('visible');
+                showToast('浏览器存储不可用，数据可能无法保存');
+                return false;
+            }
+        }
+        
+        // 改进的数据加载函数 - 带验证和备份恢复
+        function loadData() {
+            if (!checkStorage()) {
+                console.warn('localStorage 不可用，使用内存存储');
+                return;
+            }
+            
+            try {
+                const keys = ['sentences', 'tags', 'customColors', 'deletedPresetColors'];
+                const data = {};
+                let hasCorruption = false;
+                
+                keys.forEach(key => {
+                    try {
+                        const saved = localStorage.getItem(key);
+                        const backup = localStorage.getItem(key + '_backup');
+                        
+                        if (saved) {
+                            const parsed = JSON.parse(saved);
+                            // 验证数据是数组
+                            if (Array.isArray(parsed)) {
+                                data[key] = parsed;
+                            } else {
+                                console.warn(`${key} 数据格式错误，尝试从备份恢复`);
+                                hasCorruption = true;
+                                // 尝试从备份恢复
+                                if (backup) {
+                                    const backupParsed = JSON.parse(backup);
+                                    if (Array.isArray(backupParsed)) {
+                                        data[key] = backupParsed;
+                                        showToast(`已从备份恢复 ${key}`);
+                                    } else {
+                                        data[key] = [];
+                                    }
+                                } else {
+                                    data[key] = [];
+                                }
+                            }
+                        } else if (backup) {
+                            // 主数据不存在但备份存在
+                            const backupParsed = JSON.parse(backup);
+                            data[key] = Array.isArray(backupParsed) ? backupParsed : [];
+                            if (data[key].length > 0) {
+                                showToast(`已从备份恢复 ${key}`);
+                            }
+                        } else {
+                            data[key] = [];
+                        }
+                    } catch (parseErr) {
+                        console.error(`解析 ${key} 失败`, parseErr);
+                        hasCorruption = true;
+                        // 尝试从备份恢复
+                        try {
+                            const backup = localStorage.getItem(key + '_backup');
+                            if (backup) {
+                                const backupParsed = JSON.parse(backup);
+                                data[key] = Array.isArray(backupParsed) ? backupParsed : [];
+                            } else {
+                                data[key] = [];
+                            }
+                        } catch (backupErr) {
+                            data[key] = [];
+                        }
+                    }
+                });
+                
+                sentences = data.sentences;
+                tags = data.tags;
+                customColors = data.customColors;
+                deletedPresetColors = data.deletedPresetColors;
+                
+                // 验证 sentences 数据完整性
+                if (sentences.length > 0) {
+                    const validSentences = sentences.filter(s => s && typeof s === 'object' && s.id && s.text !== undefined);
+                    if (validSentences.length !== sentences.length) {
+                        console.warn(`过滤了 ${sentences.length - validSentences.length} 条无效数据`);
+                        sentences = validSentences;
+                        saveData(); // 保存清理后的数据
+                    }
+                }
+                
+                if (hasCorruption) {
+                    showToast('检测到数据异常，已尝试修复');
+                }
+                
+                const lastSave = localStorage.getItem('lastSaveTime');
+                if (lastSave) {
+                    console.log('上次保存时间:', new Date(lastSave).toLocaleString());
+                }
+                
+            } catch (e) {
+                console.error('数据加载失败', e);
+                showToast('数据加载失败，请检查浏览器存储权限');
+                // 初始化为空数组防止 undefined 错误
+                sentences = [];
+                tags = [];
+                customColors = [];
+                deletedPresetColors = [];
+            }
+        }
+        
+        // 改进的数据保存函数 - 双重备份机制
+        function saveData() {
+            if (!isStorageAvailable) {
+                showToast('存储不可用，数据仅在当前页面有效');
+                return;
+            }
+            
+            try {
+                const dataToSave = {
+                    sentences: sentences,
+                    tags: tags,
+                    customColors: customColors,
+                    deletedPresetColors: deletedPresetColors
+                };
+                
+                // 验证数据有效性，防止保存空数据覆盖有效数据
+                if (sentences === undefined || !Array.isArray(sentences)) {
+                    console.error('sentences 数据无效，拒绝保存');
+                    showToast('数据异常，保存已取消以保护现有数据');
+                    return;
+                }
+                
+                // 保存主要数据
+                localStorage.setItem('sentences', JSON.stringify(sentences));
+                localStorage.setItem('tags', JSON.stringify(tags));
+                localStorage.setItem('customColors', JSON.stringify(customColors));
+                localStorage.setItem('deletedPresetColors', JSON.stringify(deletedPresetColors));
+                
+                // 同时保存备份 - 使用不同的 key
+                localStorage.setItem('sentences_backup', JSON.stringify(sentences));
+                localStorage.setItem('tags_backup', JSON.stringify(tags));
+                localStorage.setItem('customColors_backup', JSON.stringify(customColors));
+                localStorage.setItem('deletedPresetColors_backup', JSON.stringify(deletedPresetColors));
+                
+                // 记录保存时间
+                localStorage.setItem('lastSaveTime', new Date().toISOString());
+                
+                // 隐藏存储警告（如果之前有的话）
+                document.getElementById('storageWarning').classList.remove('visible');
+                
+            } catch (e) {
+                console.error('保存失败', e);
+                if (e.name === 'QuotaExceededError') {
+                    showToast('存储空间已满，请导出备份后清理数据');
+                    document.getElementById('storageWarning').classList.add('visible');
+                } else {
+                    showToast('保存失败：' + e.message);
+                }
+            }
+        }
+        
+        // 定期自动保存（每30秒）
+        setInterval(() => {
+            if (isStorageAvailable) {
+                saveData();
+                console.log('自动保存完成');
+            }
+        }, 30000);
         
         function getPresetColors() {
             return defaultMorandiColors.filter(color => !deletedPresetColors.includes(color));
@@ -1220,7 +1406,6 @@
             warm: { navBg: '#faf8f5', navText: '#5c4b37', navBorder: '#e8e0d8', bgColor: '#f5f2ed', cardBg: '#faf8f5' },
             dark: { navBg: '#1a1a1a', navText: '#e5e5e5', navBorder: '#333333', bgColor: '#0f0f0f', cardBg: '#1a1a1a' },
             green: { navBg: '#f5f7f4', navText: '#2d3b2d', navBorder: '#d0d8d4', bgColor: '#f0f4ef', cardBg: '#f5f7f4' },
-            // 新增清淡素雅主题
             cream: { navBg: '#faf9f5', navText: '#5a5348', navBorder: '#f0ece3', bgColor: '#f8f6f1', cardBg: '#faf9f5' },
             mist: { navBg: '#f8f9fa', navText: '#495057', navBorder: '#e9ecef', bgColor: '#f1f3f5', cardBg: '#f8f9fa' },
             blush: { navBg: '#faf7f7', navText: '#6b5b5b', navBorder: '#f0e8e8', bgColor: '#f8f4f4', cardBg: '#faf7f7' },
@@ -1232,9 +1417,31 @@
             setupEventListeners();
             applyTheme(currentTheme);
             applyFont(currentFont);
+            
+            // 页面关闭前强制保存
+            window.addEventListener('beforeunload', (e) => {
+                saveData();
+            });
+            
+            // 页面可见性变化时保存（处理切换标签页等情况）
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    saveData();
+                }
+            });
         });
         
         function init() {
+            // 先加载本地存储的设置
+            try {
+                currentFont = localStorage.getItem('currentFont') || 'noto-sans';
+                currentTheme = localStorage.getItem('currentTheme') || 'light';
+            } catch (e) {
+                console.warn('设置加载失败', e);
+            }
+            
+            // 加载数据
+            loadData();
             renderSentences();
             loadTagFilter();
             updateExpandIcon();
@@ -1314,7 +1521,6 @@
             document.getElementById('tagManageModal').classList.remove('hidden');
         }
         
-        // 新增：从标签管理打开新建标签弹窗
         function openNewTagFromManage() {
             fromTagManage = true;
             document.getElementById('newTagName').value = '';
@@ -1324,7 +1530,6 @@
             document.getElementById('tagModal').classList.remove('hidden');
         }
         
-        // 修改：标签管理关闭时返回设置
         function closeTagManageModal() {
             closeModal('tagManageModal');
             openSettings();
@@ -1336,7 +1541,6 @@
             document.getElementById('colorManageModal').classList.remove('hidden');
         }
         
-        // 修改：颜色管理关闭时返回设置
         function closeColorManageModal() {
             closeModal('colorManageModal');
             openSettings();
@@ -1374,7 +1578,6 @@
             `).join('');
         }
         
-        // 通用颜色选择器（供标签管理和新建标签共用）
         function openGenericColorPicker(tagIdOrCallback, currentColor) {
             if (typeof tagIdOrCallback === 'function') {
                 newTagColorPickerCallback = tagIdOrCallback;
@@ -1387,7 +1590,6 @@
             document.getElementById('genericColorPicker').value = currentColor;
             document.getElementById('genericColorHex').value = currentColor;
             
-            // 渲染推荐颜色
             const presetGrid = document.getElementById('genericColorPresetGrid');
             const presets = getPresetColors();
             presetGrid.innerHTML = presets.map(color => `
@@ -1396,7 +1598,6 @@
                      onclick="selectGenericColorPreset('${color}')"></div>
             `).join('');
             
-            // 渲染自定义颜色
             const customSection = document.getElementById('customColorSection');
             const customGrid = document.getElementById('genericCustomColorGrid');
             
@@ -1432,16 +1633,13 @@
             }
             
             if (newTagColorPickerCallback) {
-                // 新建标签模式
                 newTagColorPickerCallback(newColor);
             } else if (currentEditingTagId) {
-                // 编辑标签模式
                 const tag = tags.find(t => t.id === currentEditingTagId);
                 if (tag) {
                     tag.color = newColor;
                     saveData();
                     renderSentences();
-                    // 修复：实时刷新标签管理列表以显示新颜色
                     renderTagManageList();
                     showToast('颜色已修改');
                 }
@@ -1452,13 +1650,11 @@
         
         function closeColorPickerModal() {
             closeModal('colorPickerModal');
-            // 如果是从标签管理打开的，返回时刷新列表确保颜色更新
             if (currentEditingTagId) {
                 renderTagManageList();
             }
         }
         
-        // 新建标签时的颜色选择
         function openNewTagColorPicker() {
             const currentColor = document.getElementById('newTagColorHex').value || '#B8B0A8';
             openGenericColorPicker((color) => {
@@ -1574,7 +1770,6 @@
             showToast('自定义颜色已清除');
         }
         
-        // 新增：清除所有数据功能
         function clearAllData() {
             if (sentences.length === 0 && tags.length === 0) {
                 showToast('没有数据需要清除');
@@ -1588,7 +1783,6 @@
             
             sentences = [];
             tags = [];
-            // 可选：是否同时清除自定义颜色？这里选择保留颜色设置
             
             saveData();
             renderSentences();
@@ -1783,7 +1977,7 @@
             const noSearch = document.getElementById('noSearchResult');
             
             let filtered = getVisibleSentences();
-            filtered.sort((a, b) => b.createdAt - a.createdAt);
+            filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
             
             if (filtered.length === 0) {
                 container.innerHTML = '';
@@ -1869,7 +2063,6 @@
             
             document.getElementById('detailText').textContent = s.text;
             
-            // 修复：移除标签前的多余 > 符号
             const tagsContainer = document.getElementById('detailTags');
             tagsContainer.innerHTML = s.tags.map(tagId => {
                 const tag = tags.find(t => t.id === tagId);
@@ -2044,7 +2237,6 @@
             document.getElementById('newTagColorHex').value = '#B8B0A8';
             document.getElementById('newTagColorPreview').style.backgroundColor = '#B8B0A8';
             
-            // 如果从标签管理打开，刷新列表并关闭弹窗后返回标签管理
             if (fromTagManage) {
                 renderTagManageList();
                 closeModal('tagModal');
@@ -2071,6 +2263,7 @@
                 if (index !== -1) {
                     sentences[index].text = text;
                     sentences[index].tags = [...selectedTags];
+                    sentences[index].updatedAt = Date.now();
                 }
             } else {
                 sentences.unshift({
@@ -2078,7 +2271,8 @@
                     text: text,
                     comment: '',
                     tags: [...selectedTags],
-                    createdAt: Date.now()
+                    createdAt: Date.now(),
+                    updatedAt: Date.now()
                 });
             }
             
@@ -2194,7 +2388,8 @@
                     text: sentenceText,
                     comment: comment,
                     tags: sentenceTags,
-                    createdAt: Date.now()
+                    createdAt: Date.now(),
+                    updatedAt: Date.now()
                 });
                 
                 count++;
@@ -2324,24 +2519,10 @@
             showToast('TXT已下载');
         }
         
-        function saveData() {
-            try {
-                localStorage.setItem('sentences', JSON.stringify(sentences));
-                localStorage.setItem('tags', JSON.stringify(tags));
-                localStorage.setItem('customColors', JSON.stringify(customColors));
-                localStorage.setItem('deletedPresetColors', JSON.stringify(deletedPresetColors));
-            } catch (e) {
-                if (e.name === 'QuotaExceededError') {
-                    showToast('存储空间不足，请删除一些句子');
-                }
-            }
-        }
-        
         function showToast(msg) {
             const toast = document.getElementById('toast');
             toast.textContent = msg;
             toast.classList.remove('hidden');
-            // 添加显示动画
             setTimeout(() => {
                 toast.classList.remove('opacity-0', '-translate-y-2');
                 toast.classList.add('opacity-100', 'translate-y-0');
