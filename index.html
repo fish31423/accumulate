@@ -620,39 +620,9 @@
             transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
             transition-duration: 200ms;
         }
-        
-        /* 数据状态提示样式 */
-        .storage-warning {
-            position: fixed;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #fff3cd;
-            color: #856404;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            z-index: 150;
-            display: none;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .storage-warning.visible {
-            display: flex;
-        }
     </style>
 </head>
 <body class="font-noto-sans pb-20">
-
-    <!-- 存储警告提示 -->
-    <div id="storageWarning" class="storage-warning">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-        </svg>
-        <span>存储空间可能已满，建议导出备份数据</span>
-    </div>
 
     <!-- 顶部导航 -->
     <header id="normalNav" class="fixed top-0 left-0 right-0 z-50 px-4 py-3" style="background: var(--nav-bg); border-bottom: 1px solid var(--nav-border);">
@@ -853,7 +823,7 @@
         </div>
     </div>
 
-    <!-- 标签管理弹窗 - 关闭时返回设置 -->
+    <!-- 标签管理弹窗 -->
     <div id="tagManageModal" class="hidden modal-overlay" onclick="if(event.target === this) closeTagManageModal()">
         <div class="modal-content">
             <div class="modal-header">
@@ -1190,7 +1160,7 @@
     </div>
 
     <script>
-        // 数据存储 - 使用 let 声明，确保可以被重新赋值
+        // 数据存储
         let sentences = [];
         let tags = [];
         let customColors = [];
@@ -1209,7 +1179,6 @@
         let batchMode = false;
         let selectedForBatch = new Set();
         let searchQuery = '';
-        let isStorageAvailable = false;
         
         const defaultMorandiColors = [
             '#B8B0A8', '#9CA8B8', '#B8A89C', '#A8B8A8', '#B8A8B0', '#A8A8B8',
@@ -1217,116 +1186,28 @@
             '#C4B8B0', '#A8B4C4', '#B4C4A8', '#C4A8B4', '#A8C4B8', '#B8C4A8'
         ];
         
-        // 检查存储空间是否可用
-        function checkStorage() {
-            try {
-                const test = '__storage_test__';
-                localStorage.setItem(test, test);
-                localStorage.removeItem(test);
-                isStorageAvailable = true;
-                return true;
-            } catch (e) {
-                isStorageAvailable = false;
-                document.getElementById('storageWarning').classList.add('visible');
-                showToast('浏览器存储不可用，数据可能无法保存');
-                return false;
-            }
-        }
-        
-        // 改进的数据加载函数 - 带验证和备份恢复
+        // 简化的数据加载 - 直接使用 try-catch，不做前置检测
         function loadData() {
-            if (!checkStorage()) {
-                console.warn('localStorage 不可用，使用内存存储');
-                return;
-            }
-            
             try {
-                const keys = ['sentences', 'tags', 'customColors', 'deletedPresetColors'];
-                const data = {};
-                let hasCorruption = false;
+                const savedSentences = localStorage.getItem('sentences');
+                const savedTags = localStorage.getItem('tags');
+                const savedCustomColors = localStorage.getItem('customColors');
+                const savedDeletedPresets = localStorage.getItem('deletedPresetColors');
                 
-                keys.forEach(key => {
-                    try {
-                        const saved = localStorage.getItem(key);
-                        const backup = localStorage.getItem(key + '_backup');
-                        
-                        if (saved) {
-                            const parsed = JSON.parse(saved);
-                            // 验证数据是数组
-                            if (Array.isArray(parsed)) {
-                                data[key] = parsed;
-                            } else {
-                                console.warn(`${key} 数据格式错误，尝试从备份恢复`);
-                                hasCorruption = true;
-                                // 尝试从备份恢复
-                                if (backup) {
-                                    const backupParsed = JSON.parse(backup);
-                                    if (Array.isArray(backupParsed)) {
-                                        data[key] = backupParsed;
-                                        showToast(`已从备份恢复 ${key}`);
-                                    } else {
-                                        data[key] = [];
-                                    }
-                                } else {
-                                    data[key] = [];
-                                }
-                            }
-                        } else if (backup) {
-                            // 主数据不存在但备份存在
-                            const backupParsed = JSON.parse(backup);
-                            data[key] = Array.isArray(backupParsed) ? backupParsed : [];
-                            if (data[key].length > 0) {
-                                showToast(`已从备份恢复 ${key}`);
-                            }
-                        } else {
-                            data[key] = [];
-                        }
-                    } catch (parseErr) {
-                        console.error(`解析 ${key} 失败`, parseErr);
-                        hasCorruption = true;
-                        // 尝试从备份恢复
-                        try {
-                            const backup = localStorage.getItem(key + '_backup');
-                            if (backup) {
-                                const backupParsed = JSON.parse(backup);
-                                data[key] = Array.isArray(backupParsed) ? backupParsed : [];
-                            } else {
-                                data[key] = [];
-                            }
-                        } catch (backupErr) {
-                            data[key] = [];
-                        }
-                    }
-                });
+                if (savedSentences) sentences = JSON.parse(savedSentences);
+                if (savedTags) tags = JSON.parse(savedTags);
+                if (savedCustomColors) customColors = JSON.parse(savedCustomColors);
+                if (savedDeletedPresets) deletedPresetColors = JSON.parse(savedDeletedPresets);
                 
-                sentences = data.sentences;
-                tags = data.tags;
-                customColors = data.customColors;
-                deletedPresetColors = data.deletedPresetColors;
-                
-                // 验证 sentences 数据完整性
-                if (sentences.length > 0) {
-                    const validSentences = sentences.filter(s => s && typeof s === 'object' && s.id && s.text !== undefined);
-                    if (validSentences.length !== sentences.length) {
-                        console.warn(`过滤了 ${sentences.length - validSentences.length} 条无效数据`);
-                        sentences = validSentences;
-                        saveData(); // 保存清理后的数据
-                    }
-                }
-                
-                if (hasCorruption) {
-                    showToast('检测到数据异常，已尝试修复');
-                }
-                
-                const lastSave = localStorage.getItem('lastSaveTime');
-                if (lastSave) {
-                    console.log('上次保存时间:', new Date(lastSave).toLocaleString());
-                }
+                // 验证数据完整性
+                if (!Array.isArray(sentences)) sentences = [];
+                if (!Array.isArray(tags)) tags = [];
+                if (!Array.isArray(customColors)) customColors = [];
+                if (!Array.isArray(deletedPresetColors)) deletedPresetColors = [];
                 
             } catch (e) {
                 console.error('数据加载失败', e);
-                showToast('数据加载失败，请检查浏览器存储权限');
-                // 初始化为空数组防止 undefined 错误
+                // 初始化为空数组
                 sentences = [];
                 tags = [];
                 customColors = [];
@@ -1334,64 +1215,20 @@
             }
         }
         
-        // 改进的数据保存函数 - 双重备份机制
+        // 简化的数据保存 - 直接使用 try-catch
         function saveData() {
-            if (!isStorageAvailable) {
-                showToast('存储不可用，数据仅在当前页面有效');
-                return;
-            }
-            
             try {
-                const dataToSave = {
-                    sentences: sentences,
-                    tags: tags,
-                    customColors: customColors,
-                    deletedPresetColors: deletedPresetColors
-                };
-                
-                // 验证数据有效性，防止保存空数据覆盖有效数据
-                if (sentences === undefined || !Array.isArray(sentences)) {
-                    console.error('sentences 数据无效，拒绝保存');
-                    showToast('数据异常，保存已取消以保护现有数据');
-                    return;
-                }
-                
-                // 保存主要数据
                 localStorage.setItem('sentences', JSON.stringify(sentences));
                 localStorage.setItem('tags', JSON.stringify(tags));
                 localStorage.setItem('customColors', JSON.stringify(customColors));
                 localStorage.setItem('deletedPresetColors', JSON.stringify(deletedPresetColors));
-                
-                // 同时保存备份 - 使用不同的 key
-                localStorage.setItem('sentences_backup', JSON.stringify(sentences));
-                localStorage.setItem('tags_backup', JSON.stringify(tags));
-                localStorage.setItem('customColors_backup', JSON.stringify(customColors));
-                localStorage.setItem('deletedPresetColors_backup', JSON.stringify(deletedPresetColors));
-                
-                // 记录保存时间
-                localStorage.setItem('lastSaveTime', new Date().toISOString());
-                
-                // 隐藏存储警告（如果之前有的话）
-                document.getElementById('storageWarning').classList.remove('visible');
-                
             } catch (e) {
                 console.error('保存失败', e);
                 if (e.name === 'QuotaExceededError') {
-                    showToast('存储空间已满，请导出备份后清理数据');
-                    document.getElementById('storageWarning').classList.add('visible');
-                } else {
-                    showToast('保存失败：' + e.message);
+                    showToast('存储空间不足，请导出备份后清理数据');
                 }
             }
         }
-        
-        // 定期自动保存（每30秒）
-        setInterval(() => {
-            if (isStorageAvailable) {
-                saveData();
-                console.log('自动保存完成');
-            }
-        }, 30000);
         
         function getPresetColors() {
             return defaultMorandiColors.filter(color => !deletedPresetColors.includes(color));
@@ -1418,29 +1255,19 @@
             applyTheme(currentTheme);
             applyFont(currentFont);
             
-            // 页面关闭前强制保存
-            window.addEventListener('beforeunload', (e) => {
+            // 页面关闭前保存
+            window.addEventListener('beforeunload', () => {
                 saveData();
-            });
-            
-            // 页面可见性变化时保存（处理切换标签页等情况）
-            document.addEventListener('visibilitychange', () => {
-                if (document.hidden) {
-                    saveData();
-                }
             });
         });
         
         function init() {
-            // 先加载本地存储的设置
+            // 加载设置
             try {
                 currentFont = localStorage.getItem('currentFont') || 'noto-sans';
                 currentTheme = localStorage.getItem('currentTheme') || 'light';
-            } catch (e) {
-                console.warn('设置加载失败', e);
-            }
+            } catch (e) {}
             
-            // 加载数据
             loadData();
             renderSentences();
             loadTagFilter();
@@ -1850,7 +1677,9 @@
         
         function setTheme(themeName) {
             currentTheme = themeName;
-            localStorage.setItem('currentTheme', themeName);
+            try {
+                localStorage.setItem('currentTheme', themeName);
+            } catch(e) {}
             applyTheme(themeName);
             
             document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('selected'));
@@ -1871,7 +1700,9 @@
         
         function setFont(fontName) {
             currentFont = fontName;
-            localStorage.setItem('currentFont', fontName);
+            try {
+                localStorage.setItem('currentFont', fontName);
+            } catch(e) {}
             applyFont(fontName);
             
             document.querySelectorAll('.font-option').forEach(opt => opt.classList.remove('selected'));
