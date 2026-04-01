@@ -89,6 +89,16 @@
             max-height: 2000px;
         }
         
+        .comment-section {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--nav-border);
+            font-size: 14px;
+            color: var(--nav-text);
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+        
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -99,6 +109,14 @@
             justify-content: center;
             padding: 16px;
             backdrop-filter: blur(4px);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        
+        .modal-overlay:not(.hidden) {
+            opacity: 1;
+            visibility: visible;
         }
         
         .modal-content {
@@ -111,12 +129,14 @@
             display: flex;
             flex-direction: column;
             box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
-            animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform: scale(0.9) translateY(20px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         
-        @keyframes modalPop {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+        .modal-overlay:not(.hidden) .modal-content {
+            transform: scale(1) translateY(0);
+            opacity: 1;
         }
         
         .modal-header {
@@ -147,18 +167,26 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .batch-checkbox.checked {
             background: #1a1a1a;
             border-color: #1a1a1a;
+            transform: scale(1.1);
         }
         
         .batch-checkbox.checked::after {
             content: '✓';
             color: white;
             font-size: 14px;
+            opacity: 0;
+            transform: scale(0);
+            animation: checkPop 0.2s ease forwards;
+        }
+        
+        @keyframes checkPop {
+            to { opacity: 1; transform: scale(1); }
         }
         
         .batch-toolbar {
@@ -174,14 +202,13 @@
             justify-content: space-between;
             align-items: center;
             transform: translateY(100%);
-            transition: transform 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .batch-toolbar.active {
             transform: translateY(0);
         }
         
-        /* 搜索模式样式 */
         .nav-search-mode {
             position: fixed;
             top: 0;
@@ -222,32 +249,100 @@
             border-radius: 8px;
             cursor: pointer;
             border: 2px solid transparent;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
+            overflow: hidden;
+        }
+        
+        .morandi-color::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         
         .morandi-color:hover {
-            transform: scale(1.1);
+            transform: scale(1.15) translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10;
+        }
+        
+        .morandi-color:hover::after {
+            opacity: 1;
         }
         
         .morandi-color.selected {
             border-color: #1a1a1a;
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transform: scale(1.05);
         }
         
-        .morandi-color.selected::after {
-            content: '✓';
+        .morandi-color .delete-btn {
             position: absolute;
-            inset: 0;
-            display: flex;
+            top: -4px;
+            right: -4px;
+            width: 16px;
+            height: 16px;
+            background: #ff4444;
+            border-radius: 50%;
+            color: white;
+            font-size: 10px;
+            display: none;
             align-items: center;
             justify-content: center;
-            color: rgba(0,0,0,0.6);
-            font-size: 12px;
-            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 20;
         }
         
-        /* 标签管理样式 */
+        .morandi-color:hover .delete-btn {
+            display: flex;
+            animation: fadeInScale 0.2s ease;
+        }
+        
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .morandi-color .delete-btn:hover {
+            transform: scale(1.2);
+            background: #ff2222;
+        }
+        
+        .color-manage-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: 10px;
+            background: var(--bg-color);
+            margin-bottom: 8px;
+            border: 1px solid var(--nav-border);
+            transition: all 0.2s ease;
+        }
+        
+        .color-manage-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .color-preview {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            margin-right: 12px;
+            flex-shrink: 0;
+            border: 1px solid var(--nav-border);
+            transition: transform 0.2s ease;
+        }
+        
+        .color-manage-item:hover .color-preview {
+            transform: scale(1.1) rotate(5deg);
+        }
+        
         .tag-manage-item {
             display: flex;
             align-items: center;
@@ -256,20 +351,51 @@
             background: var(--bg-color);
             margin-bottom: 8px;
             border: 1px solid var(--nav-border);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .tag-manage-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         
         .tag-color-dot {
-            width: 12px;
-            height: 12px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
             margin-right: 10px;
             flex-shrink: 0;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        
+        .tag-color-dot::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 50%;
+            border: 2px solid var(--nav-text);
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+        }
+        
+        .tag-color-dot:hover {
+            transform: scale(1.3);
+        }
+        
+        .tag-color-dot:hover::after {
+            opacity: 0.3;
+            transform: scale(1);
         }
         
         .tag-name {
             flex: 1;
             font-size: 14px;
             color: var(--nav-text);
+            font-weight: 500;
         }
         
         .tag-actions {
@@ -282,7 +408,7 @@
             padding: 8px;
             border-radius: 6px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
             opacity: 0.6;
             display: flex;
             align-items: center;
@@ -292,6 +418,11 @@
         .tag-action-btn:hover {
             opacity: 1;
             background: rgba(0,0,0,0.05);
+            transform: scale(1.1);
+        }
+        
+        .tag-action-btn:active {
+            transform: scale(0.95);
         }
         
         .theme-preset {
@@ -306,17 +437,33 @@
             border-radius: 12px;
             border: 2px solid transparent;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
+            overflow: hidden;
+        }
+        
+        .preset-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         
         .preset-btn:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+        
+        .preset-btn:hover::after {
+            opacity: 1;
         }
         
         .preset-btn.selected {
             border-color: var(--nav-text);
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: scale(1.05);
         }
         
         .preset-btn.selected::after {
@@ -329,6 +476,8 @@
             font-size: 16px;
             color: inherit;
             font-weight: bold;
+            background: rgba(0,0,0,0.1);
+            opacity: 1;
         }
         
         .font-option {
@@ -340,17 +489,20 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             background: var(--bg-color);
         }
         
         .font-option:hover {
             border-color: var(--nav-text);
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         
         .font-option.selected {
             border-color: var(--nav-text);
             background: rgba(0,0,0,0.05);
+            transform: translateX(8px);
         }
         
         .radio-circle {
@@ -362,11 +514,24 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+        
+        .font-option:hover .radio-circle {
+            border-color: var(--nav-text);
+            transform: scale(1.1);
         }
         
         .font-option.selected .radio-circle {
             border-color: var(--nav-text);
             background: var(--nav-text);
+            animation: radioSelect 0.3s ease;
+        }
+        
+        @keyframes radioSelect {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
         }
         
         .radio-circle::after {
@@ -376,10 +541,17 @@
             background: var(--card-bg);
             border-radius: 50%;
             display: none;
+            transition: all 0.2s ease;
         }
         
         .font-option.selected .radio-circle::after {
             display: block;
+            animation: dotPop 0.2s ease;
+        }
+        
+        @keyframes dotPop {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
         }
         
         .hide-scrollbar::-webkit-scrollbar {
@@ -390,7 +562,6 @@
             scrollbar-width: none;
         }
         
-        /* 标签文字颜色自动计算 */
         .tag-badge {
             display: inline-flex;
             align-items: center;
@@ -399,25 +570,76 @@
             font-size: 12px;
             font-weight: 500;
             border: 1px solid transparent;
+            color: #ffffff;
+            transition: all 0.2s ease;
+        }
+        
+        .tag-badge:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        
+        .color-picker-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .color-input-square {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid var(--nav-border);
+            padding: 0;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .color-input-square:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .color-input-square:active {
+            transform: scale(0.95);
+        }
+        
+        /* 按钮点击动画优化 */
+        button, .tag-action-btn, .morandi-color, .preset-btn, .font-option {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* 颜色选择器专用层级 - 修复覆盖问题 */
+        #colorPickerModal {
+            z-index: 200;
+        }
+        
+        /* 过渡动画优化 */
+        .transition-colors {
+            transition-property: background-color, border-color, color, fill, stroke;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 200ms;
         }
     </style>
 </head>
 <body class="font-noto-sans pb-20">
 
-    <!-- 顶部导航 - 普通模式 -->
+    <!-- 顶部导航 -->
     <header id="normalNav" class="fixed top-0 left-0 right-0 z-50 px-4 py-3" style="background: var(--nav-bg); border-bottom: 1px solid var(--nav-border);">
         <div class="max-w-2xl mx-auto flex justify-between items-center gap-3">
-            <!-- 左侧：全部下拉 + 展开/折叠 + 多选 -->
             <div class="flex items-center gap-2">
                 <div class="relative">
-                    <button id="filterBtn" class="flex items-center gap-1 text-sm font-medium px-3 py-1.5 rounded-full border transition-colors" 
+                    <button id="filterBtn" class="flex items-center gap-1 text-sm font-medium px-3 py-1.5 rounded-full border transition-all duration-200 hover:shadow-md active:scale-95" 
                             style="border-color: var(--nav-border); color: var(--nav-text); background: var(--bg-color);">
                         <span id="currentFilter">全部</span>
                         <svg class="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
-                    <div id="filterDropdown" class="hidden absolute top-full left-0 mt-2 w-48 rounded-xl shadow-lg border py-2 z-50" 
+                    <div id="filterDropdown" class="hidden absolute top-full left-0 mt-2 w-48 rounded-xl shadow-lg border py-2 z-50 transition-all duration-200 origin-top-left" 
                          style="background: var(--card-bg); border-color: var(--nav-border);">
                         <button onclick="filterByTag('all')" class="w-full text-left px-4 py-2 hover:opacity-70 text-sm transition-colors" 
                                 style="color: var(--nav-text);">全部</button>
@@ -426,29 +648,27 @@
                     </div>
                 </div>
                 
-                <button onclick="toggleCardExpand()" class="p-2 rounded-full border transition-colors" 
-                        style="border-color: var(--nav-border); color: var(--nav-text); background: var(--bg-color);" 
-                        title="展开/折叠">
+                <button onclick="toggleCardExpand()" class="p-2 rounded-full border transition-all duration-200 hover:shadow-md active:scale-95" 
+                        style="border-color: var(--nav-border); color: var(--nav-text); background: var(--bg-color);" title="展开/折叠">
                     <svg id="expandIcon" class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
                 </button>
                 
-                <button onclick="toggleBatchMode()" id="batchModeBtn" class="px-3 py-1.5 rounded-full border text-sm font-medium transition-colors" 
+                <button onclick="toggleBatchMode()" id="batchModeBtn" class="px-3 py-1.5 rounded-full border text-sm font-medium transition-all duration-200 hover:shadow-md active:scale-95" 
                         style="border-color: var(--nav-border); color: var(--nav-text); background: var(--bg-color);">
                     多选
                 </button>
             </div>
             
-            <!-- 右侧：搜索 + 设置 -->
             <div class="flex items-center gap-2">
-                <button onclick="enterSearchMode()" class="p-2 rounded-full hover:opacity-70 transition-opacity" style="color: var(--nav-text);">
+                <button onclick="enterSearchMode()" class="p-2 rounded-full hover:opacity-70 transition-all duration-200 hover:bg-black/5 active:scale-95" style="color: var(--nav-text);">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
                 </button>
                 
-                <button onclick="openSettings()" class="p-2 rounded-full hover:opacity-70 transition-opacity" style="color: var(--nav-text);">
+                <button onclick="openSettings()" class="p-2 rounded-full hover:opacity-70 transition-all duration-200 hover:bg-black/5 active:scale-95" style="color: var(--nav-text);">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
                               d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
@@ -466,17 +686,13 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
             <input type="text" id="searchInput" placeholder="搜索句子..." oninput="handleSearch(this.value)" autocomplete="off">
-            <button onclick="exitSearchMode()" class="px-3 py-1.5 text-sm font-medium" style="color: var(--nav-text);">
-                取消
-            </button>
+            <button onclick="exitSearchMode()" class="px-3 py-1.5 text-sm font-medium transition-all hover:opacity-70" style="color: var(--nav-text);">取消</button>
         </div>
     </div>
 
     <!-- 主内容区 -->
     <main class="pt-20 px-4 max-w-2xl mx-auto min-h-screen">
-        <div id="sentencesList" class="space-y-3 mt-2">
-            <!-- 句子卡片将在这里渲染 -->
-        </div>
+        <div id="sentencesList" class="space-y-3 mt-2"></div>
         
         <div id="emptyState" class="hidden flex-col items-center justify-center py-20 opacity-40">
             <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--nav-text);">
@@ -491,7 +707,7 @@
     </main>
 
     <!-- 添加按钮 -->
-    <button onclick="openAddModal()" class="fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg flex items-center justify-center z-40 transition-transform hover:scale-105 active:scale-95" 
+    <button onclick="openAddModal()" class="fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg flex items-center justify-center z-40 transition-all duration-300 hover:scale-110 hover:shadow-xl active:scale-95" 
             style="background: var(--nav-text); color: var(--nav-bg);">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -502,13 +718,13 @@
     <div id="batchToolbar" class="batch-toolbar">
         <div class="max-w-2xl mx-auto w-full flex justify-between items-center px-4">
             <div class="flex items-center gap-3">
-                <button onclick="toggleSelectAll()" class="text-sm font-medium" style="color: var(--nav-text);">全选</button>
+                <button onclick="toggleSelectAll()" class="text-sm font-medium transition-all hover:opacity-70 active:scale-95" style="color: var(--nav-text);">全选</button>
                 <span id="selectedCount" class="text-sm opacity-50" style="color: var(--nav-text);">已选 0 项</span>
             </div>
             <div class="flex gap-3">
-                <button onclick="exportSelected()" class="px-4 py-2 rounded-lg text-sm font-medium border" 
+                <button onclick="exportSelected()" class="px-4 py-2 rounded-lg text-sm font-medium border transition-all duration-200 hover:shadow-md active:scale-95" 
                         style="border-color: var(--nav-border); color: var(--nav-text); background: var(--bg-color);">导出</button>
-                <button onclick="deleteSelected()" class="px-4 py-2 rounded-lg text-sm font-medium bg-red-50 text-red-600 hover:bg-red-100">删除</button>
+                <button onclick="deleteSelected()" class="px-4 py-2 rounded-lg text-sm font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-all duration-200 hover:shadow-md active:scale-95">删除</button>
             </div>
         </div>
     </div>
@@ -518,14 +734,13 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="text-lg font-bold" style="color: var(--nav-text);">设置</h3>
-                <button onclick="closeModal('settingsModal')" class="opacity-40 hover:opacity-70" style="color: var(--nav-text);">
+                <button onclick="closeModal('settingsModal')" class="opacity-40 hover:opacity-70 transition-opacity active:scale-95" style="color: var(--nav-text);">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
             <div class="modal-body hide-scrollbar">
-                <!-- 配色方案 -->
                 <div class="mb-6">
                     <h4 class="text-sm font-medium mb-3 opacity-60" style="color: var(--nav-text);">配色方案</h4>
                     <div class="theme-preset">
@@ -533,10 +748,13 @@
                         <button onclick="setTheme('warm')" class="preset-btn" id="theme-warm" style="background: #faf8f5; border: 1px solid #e8e0d8;" title="暖色"></button>
                         <button onclick="setTheme('dark')" class="preset-btn" id="theme-dark" style="background: #1a1a1a; border: 1px solid #333; color: white;" title="深色"></button>
                         <button onclick="setTheme('green')" class="preset-btn" id="theme-green" style="background: #f5f7f4; border: 1px solid #d0d8d4;" title="护眼"></button>
+                        <button onclick="setTheme('cream')" class="preset-btn" id="theme-cream" style="background: #faf9f5; border: 1px solid #f0ece3;" title="素雅"></button>
+                        <button onclick="setTheme('mist')" class="preset-btn" id="theme-mist" style="background: #f8f9fa; border: 1px solid #e9ecef;" title="清新"></button>
+                        <button onclick="setTheme('blush')" class="preset-btn" id="theme-blush" style="background: #faf7f7; border: 1px solid #f0e8e8;" title="温柔"></button>
+                        <button onclick="setTheme('mint')" class="preset-btn" id="theme-mint" style="background: #f5f8f6; border: 1px solid #e3ebe6;" title="薄荷"></button>
                     </div>
                 </div>
                 
-                <!-- 字体选择 -->
                 <div class="mb-6">
                     <h4 class="text-sm font-medium mb-3 opacity-60" style="color: var(--nav-text);">字体</h4>
                     <div class="space-y-2">
@@ -566,50 +784,157 @@
                     </div>
                 </div>
                 
-                <!-- 标签管理入口 -->
                 <div class="mb-6">
                     <h4 class="text-sm font-medium mb-3 opacity-60" style="color: var(--nav-text);">标签管理</h4>
-                    <button onclick="openTagManageModal()" class="w-full py-3 rounded-xl border text-left px-4 flex items-center justify-between transition-colors mb-3" 
+                    <button onclick="openTagManageModal()" class="w-full py-3 rounded-xl border text-left px-4 flex items-center justify-between transition-all duration-200 hover:shadow-md active:scale-95 mb-3" 
                             style="border-color: var(--nav-border); background: var(--bg-color); color: var(--nav-text);">
                         <span class="font-medium text-sm">管理标签</span>
-                        <svg class="w-5 h-5 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 opacity-40 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                         </svg>
                     </button>
                 </div>
                 
-                <!-- 数据管理 -->
+                <div class="mb-6">
+                    <h4 class="text-sm font-medium mb-3 opacity-60" style="color: var(--nav-text);">颜色管理</h4>
+                    <button onclick="openColorManageModal()" class="w-full py-3 rounded-xl border text-left px-4 flex items-center justify-between transition-all duration-200 hover:shadow-md active:scale-95 mb-3" 
+                            style="border-color: var(--nav-border); background: var(--bg-color); color: var(--nav-text);">
+                        <span class="font-medium text-sm">管理颜色</span>
+                        <svg class="w-5 h-5 opacity-40 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </div>
+                
                 <div class="border-t pt-4 mb-6" style="border-color: var(--nav-border);">
                     <h4 class="text-sm font-medium mb-3 opacity-60" style="color: var(--nav-text);">数据管理</h4>
-                    <button onclick="openImportExport()" class="w-full py-3 rounded-xl border text-sm font-medium mb-2 transition-colors" 
+                    <button onclick="openImportExport()" class="w-full py-3 rounded-xl border text-sm font-medium mb-2 transition-all duration-200 hover:shadow-md active:scale-95" 
                             style="border-color: var(--nav-border); background: var(--bg-color); color: var(--nav-text);">
                         导入 / 导出数据
                     </button>
-                    <button onclick="clearEmptySentences()" class="w-full py-3 rounded-xl border text-sm font-medium text-red-600 hover:bg-red-50 transition-colors" 
+                    <button onclick="clearEmptySentences()" class="w-full py-3 rounded-xl border text-sm font-medium mb-2 text-orange-600 hover:bg-orange-50 transition-all duration-200 hover:shadow-md active:scale-95" 
                             style="border-color: var(--nav-border); background: var(--bg-color);">
                         清除所有空句子
                     </button>
+                    <button onclick="clearAllData()" class="w-full py-3 rounded-xl border text-sm font-medium text-red-600 hover:bg-red-50 transition-all duration-200 hover:shadow-md active:scale-95" 
+                            style="border-color: var(--nav-border); background: var(--bg-color);">
+                        清除所有数据
+                    </button>
+                    <p class="text-xs opacity-40 mt-2" style="color: var(--nav-text);">此操作将删除所有句子和标签，不可恢复</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 标签管理弹窗（独立） -->
-    <div id="tagManageModal" class="hidden modal-overlay" onclick="if(event.target === this) closeModal('tagManageModal')">
+    <!-- 标签管理弹窗 - 关闭时返回设置 -->
+    <div id="tagManageModal" class="hidden modal-overlay" onclick="if(event.target === this) closeTagManageModal()">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="text-lg font-bold" style="color: var(--nav-text);">管理标签</h3>
-                <button onclick="closeModal('tagManageModal')" class="opacity-40 hover:opacity-70" style="color: var(--nav-text);">
+                <div class="flex items-center gap-3">
+                    <!-- 新增：新建标签按钮 -->
+                    <button onclick="openNewTagFromManage()" class="flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 hover:shadow-md active:scale-95" 
+                            style="background: var(--nav-text); color: var(--nav-bg);">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        新建
+                    </button>
+                    <!-- 关闭按钮改为返回设置 -->
+                    <button onclick="closeTagManageModal()" class="opacity-40 hover:opacity-70 transition-opacity active:scale-95" style="color: var(--nav-text);">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body hide-scrollbar">
+                <p class="text-xs opacity-40 mb-3" style="color: var(--nav-text);">点击色块选择颜色，使用箭头调整顺序，点击 × 删除</p>
+                <div id="tagManageList" class="space-y-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通用颜色选择弹窗（标签管理和新建标签共用）- 提高z-index确保在最上层 -->
+    <div id="colorPickerModal" class="hidden modal-overlay" style="z-index: 200;" onclick="if(event.target === this) closeModal('colorPickerModal')">
+        <div class="modal-content" style="max-width: 320px;">
+            <div class="modal-header">
+                <h3 class="text-lg font-bold" style="color: var(--nav-text);">选择颜色</h3>
+                <button onclick="closeColorPickerModal()" class="opacity-40 hover:opacity-70 transition-opacity active:scale-95" style="color: var(--nav-text);">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-4">
+                    <div class="color-picker-row">
+                        <input type="color" id="genericColorPicker" class="color-input-square" 
+                               oninput="document.getElementById('genericColorHex').value = this.value.toUpperCase()">
+                        <input type="text" id="genericColorHex" placeholder="#RRGGBB" maxlength="7" class="flex-1 px-3 py-2 rounded-lg border text-sm font-mono uppercase transition-all focus:shadow-md" 
+                               style="background: var(--bg-color); border-color: var(--nav-border); color: var(--nav-text);"
+                               oninput="if(this.value.match(/^#[0-9A-Fa-f]{6}$/)) document.getElementById('genericColorPicker').value = this.value">
+                    </div>
+                    <button onclick="confirmGenericColorChange()" class="w-full py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:shadow-md active:scale-95" 
+                            style="background: var(--nav-text); color: var(--nav-bg);">确认</button>
+                </div>
+                <div class="border-t pt-3" style="border-color: var(--nav-border);">
+                    <p class="text-xs opacity-50 mb-2" style="color: var(--nav-text);">推荐颜色</p>
+                    <div class="morandi-grid" id="genericColorPresetGrid"></div>
+                </div>
+                <div id="customColorSection" class="border-t pt-3 mt-3" style="border-color: var(--nav-border); display: none;">
+                    <p class="text-xs opacity-50 mb-2" style="color: var(--nav-text);">自定义颜色</p>
+                    <div class="morandi-grid" id="genericCustomColorGrid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 颜色管理弹窗 - 关闭时返回设置 -->
+    <div id="colorManageModal" class="hidden modal-overlay" onclick="if(event.target === this) closeColorManageModal()">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-lg font-bold" style="color: var(--nav-text);">管理颜色</h3>
+                <!-- 关闭按钮改为返回设置 -->
+                <button onclick="closeColorManageModal()" class="opacity-40 hover:opacity-70 transition-opacity active:scale-95" style="color: var(--nav-text);">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
             <div class="modal-body hide-scrollbar">
-                <p class="text-xs opacity-40 mb-3" style="color: var(--nav-text);">使用上下箭头调整顺序，点击 × 删除标签</p>
-                <div id="tagManageList" class="space-y-2">
-                    <!-- 动态生成 -->
+                <div class="mb-4">
+                    <h4 class="text-sm font-medium mb-2 opacity-60" style="color: var(--nav-text);">添加自定义颜色</h4>
+                    <div class="color-picker-row">
+                        <input type="color" id="customColorPicker" class="color-input-square">
+                        <input type="text" id="customColorHex" placeholder="#RRGGBB" maxlength="7" class="flex-1 px-3 py-2 rounded-lg border text-sm font-mono uppercase transition-all focus:shadow-md" 
+                               style="background: var(--bg-color); border-color: var(--nav-border); color: var(--nav-text);"
+                               oninput="if(this.value.match(/^#[0-9A-Fa-f]{6}$/)) document.getElementById('customColorPicker').value = this.value">
+                        <button onclick="addCustomColor()" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:shadow-md active:scale-95" 
+                                style="background: var(--nav-text); color: var(--nav-bg);">添加</button>
+                    </div>
                 </div>
+                
+                <div class="mb-4">
+                    <h4 class="text-sm font-medium mb-2 opacity-60" style="color: var(--nav-text);">
+                        推荐颜色
+                        <span class="text-xs font-normal opacity-50 ml-1">(点击 × 删除)</span>
+                    </h4>
+                    <div class="morandi-grid" id="presetColorsGrid"></div>
+                </div>
+                
+                <div>
+                    <h4 class="text-sm font-medium mb-2 opacity-60" style="color: var(--nav-text);">
+                        自定义颜色
+                        <span class="text-xs font-normal opacity-50 ml-1">(共 <span id="customColorCount">0</span> 个)</span>
+                    </h4>
+                    <div id="customColorsList" class="space-y-2"></div>
+                </div>
+                
+                <button onclick="clearAllCustomColors()" class="w-full mt-4 py-3 rounded-xl border text-sm font-medium text-red-600 hover:bg-red-50 transition-all duration-200 hover:shadow-md active:scale-95" 
+                        style="border-color: var(--nav-border); background: var(--bg-color);">
+                    清除所有自定义颜色
+                </button>
             </div>
         </div>
     </div>
@@ -619,23 +944,22 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="text-lg font-bold" style="color: var(--nav-text);">导入导出</h3>
-                <button onclick="closeModal('importExportModal')" class="opacity-40 hover:opacity-70" style="color: var(--nav-text);">
+                <button onclick="closeModal('importExportModal')" class="opacity-40 hover:opacity-70 transition-opacity active:scale-95" style="color: var(--nav-text);">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
             <div class="modal-body">
-                <!-- 导入 -->
                 <div class="mb-6">
                     <h4 class="text-sm font-medium mb-2 opacity-60" style="color: var(--nav-text);">批量导入</h4>
                     <div class="space-y-2 mb-3">
-                        <textarea id="importText" class="w-full px-3 py-2 rounded-lg border text-sm resize-none" rows="3" 
+                        <textarea id="importText" class="w-full px-3 py-2 rounded-lg border text-sm resize-none transition-all focus:shadow-md" rows="3" 
                                   style="background: var(--bg-color); border-color: var(--nav-border); color: var(--nav-text);" 
-                                  placeholder="每行一句&#10;标签格式：#标签1 #标签2&#10;例：你若安好，便是晴天 #文艺 #情感"></textarea>
+                                  placeholder="每行一句&#10;标签格式：#标签1 #标签2&#10;评论格式：//评论内容"></textarea>
                         <div class="relative">
                             <input type="file" id="importFile" accept=".txt" class="hidden" onchange="handleFileImport(this)">
-                            <button onclick="document.getElementById('importFile').click()" class="w-full py-2 rounded-lg border text-sm font-medium flex items-center justify-center gap-2" 
+                            <button onclick="document.getElementById('importFile').click()" class="w-full py-2 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-all duration-200 hover:shadow-md active:scale-95" 
                                     style="border-color: var(--nav-border); background: var(--bg-color); color: var(--nav-text);">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -644,19 +968,22 @@
                             </button>
                         </div>
                     </div>
-                    <button onclick="batchImport()" class="w-full py-2 rounded-lg text-sm font-medium" 
+                    <button onclick="batchImport()" class="w-full py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:shadow-md active:scale-95" 
                             style="background: var(--nav-text); color: var(--nav-bg);">导入文本</button>
                 </div>
                 
-                <!-- 导出 -->
                 <div class="border-t pt-4" style="border-color: var(--nav-border);">
                     <h4 class="text-sm font-medium mb-2 opacity-60" style="color: var(--nav-text);">批量导出</h4>
                     <div class="space-y-2 mb-3">
-                        <label class="flex items-center gap-2 text-sm" style="color: var(--nav-text);">
+                        <label class="flex items-center gap-2 text-sm cursor-pointer transition-opacity hover:opacity-70" style="color: var(--nav-text);">
                             <input type="checkbox" id="exportWithTags" checked class="rounded border-gray-300">
                             包含标签
                         </label>
-                        <select id="exportFilter" class="w-full px-3 py-2 rounded-lg border text-sm" 
+                        <label class="flex items-center gap-2 text-sm cursor-pointer transition-opacity hover:opacity-70" style="color: var(--nav-text);">
+                            <input type="checkbox" id="exportWithComments" checked class="rounded border-gray-300">
+                            包含评论
+                        </label>
+                        <select id="exportFilter" class="w-full px-3 py-2 rounded-lg border text-sm transition-all focus:shadow-md" 
                                 style="background: var(--bg-color); border-color: var(--nav-border); color: var(--nav-text);">
                             <option value="all">全部句子</option>
                             <option value="selected">当前选中的句子</option>
@@ -666,12 +993,12 @@
                     </div>
                     
                     <div class="flex gap-2 mb-2">
-                        <button onclick="generateExport()" class="flex-1 py-2 rounded-lg text-sm border" 
+                        <button onclick="generateExport()" class="flex-1 py-2 rounded-lg text-sm border transition-all duration-200 hover:shadow-md active:scale-95" 
                                 style="border-color: var(--nav-border); color: var(--nav-text); background: var(--bg-color);">生成</button>
-                        <button onclick="copyExport()" class="flex-1 py-2 rounded-lg text-sm font-medium" 
+                        <button onclick="copyExport()" class="flex-1 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:shadow-md active:scale-95" 
                                 style="background: var(--nav-text); color: var(--nav-bg);">复制</button>
                     </div>
-                    <button onclick="downloadTxt()" class="w-full py-2 rounded-lg text-sm border mb-2" 
+                    <button onclick="downloadTxt()" class="w-full py-2 rounded-lg text-sm border mb-2 transition-all duration-200 hover:shadow-md active:scale-95" 
                             style="border-color: var(--nav-border); color: var(--nav-text); background: var(--bg-color);">下载 TXT</button>
                     
                     <textarea id="exportResult" readonly class="w-full px-3 py-2 rounded-lg border text-xs resize-none" rows="3" 
@@ -681,12 +1008,12 @@
         </div>
     </div>
 
-    <!-- 添加/编辑句子弹窗 -->
+    <!-- 添加/编辑句子弹窗（不含评论） -->
     <div id="sentenceModal" class="hidden modal-overlay" onclick="if(event.target === this) closeModal('sentenceModal')">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="text-lg font-bold" id="modalTitle" style="color: var(--nav-text);">添加句子</h3>
-                <button onclick="closeModal('sentenceModal')" class="opacity-40 hover:opacity-70" style="color: var(--nav-text);">
+                <button onclick="closeModal('sentenceModal')" class="opacity-40 hover:opacity-70 transition-opacity active:scale-95" style="color: var(--nav-text);">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -695,16 +1022,15 @@
             <div class="modal-body">
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium mb-2 opacity-60" style="color: var(--nav-text);">句子内容</label>
-                        <textarea id="sentenceText" class="w-full px-4 py-3 rounded-xl border focus:outline-none resize-none text-base leading-relaxed" 
-                                  style="background: var(--bg-color); border-color: var(--nav-border); color: var(--nav-text); min-height: 120px;" 
-                                  placeholder="输入优美的句子..." rows="4"></textarea>
+                        <textarea id="sentenceText" class="w-full px-4 py-3 rounded-xl border focus:outline-none resize-none text-base leading-relaxed transition-all focus:shadow-lg" 
+                                  style="background: var(--bg-color); border-color: var(--nav-border); color: var(--nav-text); min-height: 150px;" 
+                                  placeholder="" rows="5"></textarea>
                     </div>
                     
                     <div>
                         <label class="block text-sm font-medium mb-2 opacity-60" style="color: var(--nav-text);">标签</label>
                         <div id="tagSelector" class="flex flex-wrap gap-2 mb-3"></div>
-                        <button onclick="openTagSelector()" class="text-sm opacity-60 hover:opacity-100 flex items-center gap-1 py-2 transition-opacity" style="color: var(--nav-text);">
+                        <button onclick="openTagSelector()" class="text-sm opacity-60 hover:opacity-100 flex items-center gap-1 py-2 transition-all hover:translate-x-1" style="color: var(--nav-text);">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                             </svg>
@@ -714,20 +1040,20 @@
                 </div>
             </div>
             <div class="p-4 border-t flex gap-3" style="border-color: var(--nav-border); background: var(--card-bg);">
-                <button onclick="closeModal('sentenceModal')" class="flex-1 py-3 rounded-xl border text-sm font-medium transition-colors" 
+                <button onclick="closeModal('sentenceModal')" class="flex-1 py-3 rounded-xl border text-sm font-medium transition-all duration-200 hover:shadow-md active:scale-95" 
                         style="border-color: var(--nav-border); color: var(--nav-text);">取消</button>
-                <button onclick="saveSentence()" class="flex-1 py-3 rounded-xl text-sm font-medium transition-colors" 
+                <button onclick="saveSentence()" class="flex-1 py-3 rounded-xl text-sm font-medium transition-all duration-200 hover:shadow-md active:scale-95" 
                         style="background: var(--nav-text); color: var(--nav-bg);">保存</button>
             </div>
         </div>
     </div>
 
-    <!-- 标签选择弹窗 -->
+    <!-- 新建标签弹窗（简化版，颜色选择交给通用颜色选择器） -->
     <div id="tagModal" class="hidden modal-overlay" onclick="if(event.target === this) closeModal('tagModal')">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="text-lg font-bold" style="color: var(--nav-text);">选择标签</h3>
-                <button onclick="closeModal('tagModal')" class="opacity-40 hover:opacity-70" style="color: var(--nav-text);">
+                <h3 class="text-lg font-bold" style="color: var(--nav-text);">新建标签</h3>
+                <button onclick="closeModal('tagModal')" class="opacity-40 hover:opacity-70 transition-opacity active:scale-95" style="color: var(--nav-text);">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -735,63 +1061,70 @@
             </div>
             <div class="modal-body">
                 <div class="mb-4">
-                    <input type="text" id="newTagName" class="w-full px-3 py-2 rounded-lg border text-sm mb-3" 
+                    <input type="text" id="newTagName" class="w-full px-3 py-2 rounded-lg border text-sm mb-3 transition-all focus:shadow-md" 
                            style="background: var(--bg-color); border-color: var(--nav-border); color: var(--nav-text);" 
                            placeholder="输入新标签名称">
                     
-                    <div class="flex items-center gap-2 mb-3">
-                        <input type="color" id="colorPicker" value="#B8B0A8" class="w-10 h-10 rounded cursor-pointer border-0 p-0" 
-                               oninput="document.getElementById('colorHex').value = this.value.toUpperCase()">
-                        <input type="text" id="colorHex" value="#B8B0A8" maxlength="7" class="flex-1 px-3 py-2 rounded-lg border text-sm font-mono uppercase" 
-                               style="background: var(--bg-color); border-color: var(--nav-border); color: var(--nav-text);"
-                               oninput="if(this.value.match(/^#[0-9A-Fa-f]{6}$/)) document.getElementById('colorPicker').value = this.value">
+                    <div class="color-picker-row mb-3">
+                        <div id="newTagColorPreview" class="color-input-square" style="background-color: #B8B0A8;" onclick="openNewTagColorPicker()"></div>
+                        <input type="text" id="newTagColorHex" value="#B8B0A8" readonly class="flex-1 px-3 py-2 rounded-lg border text-sm font-mono uppercase transition-all" 
+                               style="background: var(--bg-color); border-color: var(--nav-border); color: var(--nav-text);">
                     </div>
+                    <p class="text-xs opacity-50" style="color: var(--nav-text);">点击色块选择颜色</p>
                     
-                    <p class="text-xs opacity-50 mb-2" style="color: var(--nav-text);">推荐颜色（莫兰迪色系）</p>
-                    <div class="morandi-grid" id="morandiColors"></div>
-                    
-                    <button onclick="createNewTag()" class="mt-4 w-full py-2 rounded-lg text-sm font-medium" 
+                    <button onclick="createNewTag()" class="mt-4 w-full py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:shadow-md active:scale-95" 
                             style="background: var(--nav-text); color: var(--nav-bg);">创建标签</button>
                 </div>
                 
                 <div class="border-t pt-4" style="border-color: var(--nav-border);">
-                    <p class="text-xs opacity-50 mb-2" style="color: var(--nav-text);">已有标签</p>
+                    <p class="text-xs opacity-50 mb-2" style="color: var(--nav-text);">已有标签（点击切换选择）</p>
                     <div id="existingTags" class="flex flex-wrap gap-2"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 详情弹窗 -->
+    <!-- 详情弹窗（始终四个选项） -->
     <div id="detailModal" class="hidden modal-overlay" onclick="if(event.target === this) closeModal('detailModal')">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="flex gap-2 flex-wrap" id="detailTags"></div>
-                <button onclick="closeModal('detailModal')" class="opacity-40 hover:opacity-70 ml-2" style="color: var(--nav-text);">
+                <button onclick="closeModal('detailModal')" class="opacity-40 hover:opacity-70 ml-2 transition-opacity active:scale-95" style="color: var(--nav-text);">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
             <div class="modal-body">
-                <div id="detailText" class="text-lg leading-relaxed whitespace-pre-wrap" style="color: var(--nav-text); min-height: 100px;"></div>
+                <div id="detailText" class="text-lg leading-relaxed whitespace-pre-wrap mb-4" style="color: var(--nav-text);"></div>
+                
+                <div id="detailCommentSection" class="hidden border-t pt-4" style="border-color: var(--nav-border);">
+                    <div id="detailComment" class="text-sm leading-relaxed opacity-80" style="color: var(--nav-text);"></div>
+                </div>
             </div>
-            <div class="p-4 border-t grid grid-cols-3 gap-3" style="border-color: var(--nav-border); background: var(--card-bg);">
-                <button onclick="editCurrentSentence()" class="flex flex-col items-center gap-1 p-3 rounded-xl transition-colors" 
+            <div class="p-4 border-t grid grid-cols-4 gap-3" style="border-color: var(--nav-border); background: var(--card-bg);">
+                <button onclick="editCurrentSentence()" class="flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 hover:shadow-md active:scale-95" 
                         style="background: var(--bg-color); color: var(--nav-text);">
                     <svg class="w-5 h-5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                     </svg>
                     <span class="text-xs">编辑</span>
                 </button>
-                <button onclick="modifyTags()" class="flex flex-col items-center gap-1 p-3 rounded-xl transition-colors" 
+                <button onclick="handleCommentClick()" class="flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 hover:shadow-md active:scale-95" 
+                        style="background: var(--bg-color); color: var(--nav-text);">
+                    <svg class="w-5 h-5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                    </svg>
+                    <span class="text-xs">评论</span>
+                </button>
+                <button onclick="modifyTags()" class="flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-200 hover:shadow-md active:scale-95" 
                         style="background: var(--bg-color); color: var(--nav-text);">
                     <svg class="w-5 h-5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                     </svg>
                     <span class="text-xs">标签</span>
                 </button>
-                <button onclick="deleteCurrentSentence()" class="flex flex-col items-center gap-1 p-3 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 transition-colors">
+                <button onclick="deleteCurrentSentence()" class="flex flex-col items-center gap-1 p-3 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 transition-all duration-200 hover:shadow-md active:scale-95">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                     </svg>
@@ -801,16 +1134,62 @@
         </div>
     </div>
 
+    <!-- 评论编辑弹窗（独立） -->
+    <div id="commentModal" class="hidden modal-overlay" onclick="if(event.target === this) closeCommentModal()">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-lg font-bold" id="commentModalTitle" style="color: var(--nav-text);">添加评论</h3>
+                <button onclick="closeCommentModal()" class="opacity-40 hover:opacity-70 transition-opacity active:scale-95" style="color: var(--nav-text);">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <textarea id="commentText" class="w-full px-4 py-3 rounded-xl border focus:outline-none resize-none text-base leading-relaxed transition-all focus:shadow-lg" 
+                          style="background: var(--bg-color); border-color: var(--nav-border); color: var(--nav-text); min-height: 150px;" 
+                          placeholder="" rows="6"></textarea>
+            </div>
+            <div class="p-4 border-t flex gap-3" style="border-color: var(--nav-border); background: var(--card-bg);">
+                <button onclick="closeCommentModal()" class="flex-1 py-3 rounded-xl border text-sm font-medium transition-all duration-200 hover:shadow-md active:scale-95" 
+                        style="border-color: var(--nav-border); color: var(--nav-text);">取消</button>
+                <button onclick="saveComment()" class="flex-1 py-3 rounded-xl text-sm font-medium transition-all duration-200 hover:shadow-md active:scale-95" 
+                        style="background: var(--nav-text); color: var(--nav-bg);">保存</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 提示消息 -->
-    <div id="toast" class="hidden fixed top-20 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-sm shadow-lg z-[200] transition-opacity" 
+    <div id="toast" class="hidden fixed top-20 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-sm shadow-lg z-[200] transition-all duration-300 opacity-0 transform -translate-y-2" 
          style="background: var(--nav-text); color: var(--nav-bg);">
         提示信息
     </div>
 
     <script>
         // 数据存储
-        let sentences = JSON.parse(localStorage.getItem('sentences') || '[]');
-        let tags = JSON.parse(localStorage.getItem('tags') || '[]');
+        let sentences = [];
+        let tags = [];
+        let customColors = [];
+        let deletedPresetColors = [];
+        let currentEditingTagId = null;
+        let newTagColorPickerCallback = null;
+        // 标记是否从标签管理打开的新建标签弹窗
+        let fromTagManage = false;
+        
+        try {
+            const savedSentences = localStorage.getItem('sentences');
+            const savedTags = localStorage.getItem('tags');
+            const savedCustomColors = localStorage.getItem('customColors');
+            const savedDeletedPresets = localStorage.getItem('deletedPresetColors');
+            
+            if (savedSentences) sentences = JSON.parse(savedSentences);
+            if (savedTags) tags = JSON.parse(savedTags);
+            if (savedCustomColors) customColors = JSON.parse(savedCustomColors);
+            if (savedDeletedPresets) deletedPresetColors = JSON.parse(savedDeletedPresets);
+        } catch (e) {
+            console.error('数据加载失败', e);
+        }
+        
         let currentFont = localStorage.getItem('currentFont') || 'noto-sans';
         let currentTheme = localStorage.getItem('currentTheme') || 'light';
         let currentEditingId = null;
@@ -822,21 +1201,32 @@
         let selectedForBatch = new Set();
         let searchQuery = '';
         
-        // 莫兰迪色系
-        const morandiColors = [
+        const defaultMorandiColors = [
             '#B8B0A8', '#9CA8B8', '#B8A89C', '#A8B8A8', '#B8A8B0', '#A8A8B8',
-            '#B8B8A0', '#A0B0B8', '#B8A090', '#90A0B8', '#A8B0A0', '#B0A8B8'
+            '#B8B8A0', '#A0B0B8', '#B8A090', '#90A0B8', '#A8B0A0', '#B0A8B8',
+            '#C4B8B0', '#A8B4C4', '#B4C4A8', '#C4A8B4', '#A8C4B8', '#B8C4A8'
         ];
         
-        // 主题配置
+        function getPresetColors() {
+            return defaultMorandiColors.filter(color => !deletedPresetColors.includes(color));
+        }
+        
+        function getAllColors() {
+            return [...getPresetColors(), ...customColors];
+        }
+        
         const themes = {
             light: { navBg: '#ffffff', navText: '#1a1a1a', navBorder: '#f0f0f0', bgColor: '#fafafa', cardBg: '#ffffff' },
             warm: { navBg: '#faf8f5', navText: '#5c4b37', navBorder: '#e8e0d8', bgColor: '#f5f2ed', cardBg: '#faf8f5' },
             dark: { navBg: '#1a1a1a', navText: '#e5e5e5', navBorder: '#333333', bgColor: '#0f0f0f', cardBg: '#1a1a1a' },
-            green: { navBg: '#f5f7f4', navText: '#2d3b2d', navBorder: '#d0d8d4', bgColor: '#f0f4ef', cardBg: '#f5f7f4' }
+            green: { navBg: '#f5f7f4', navText: '#2d3b2d', navBorder: '#d0d8d4', bgColor: '#f0f4ef', cardBg: '#f5f7f4' },
+            // 新增清淡素雅主题
+            cream: { navBg: '#faf9f5', navText: '#5a5348', navBorder: '#f0ece3', bgColor: '#f8f6f1', cardBg: '#faf9f5' },
+            mist: { navBg: '#f8f9fa', navText: '#495057', navBorder: '#e9ecef', bgColor: '#f1f3f5', cardBg: '#f8f9fa' },
+            blush: { navBg: '#faf7f7', navText: '#6b5b5b', navBorder: '#f0e8e8', bgColor: '#f8f4f4', cardBg: '#faf7f7' },
+            mint: { navBg: '#f5f8f6', navText: '#4a5d52', navBorder: '#e3ebe6', bgColor: '#f0f5f2', cardBg: '#f5f8f6' }
         };
         
-        // 初始化
         document.addEventListener('DOMContentLoaded', () => {
             init();
             setupEventListeners();
@@ -846,7 +1236,6 @@
         
         function init() {
             renderSentences();
-            renderMorandiColors();
             loadTagFilter();
             updateExpandIcon();
         }
@@ -870,9 +1259,16 @@
                     div.classList.add('hidden');
                 }
             });
+            
+            const customColorPicker = document.getElementById('customColorPicker');
+            const customColorHex = document.getElementById('customColorHex');
+            if (customColorPicker && customColorHex) {
+                customColorPicker.addEventListener('input', (e) => {
+                    customColorHex.value = e.target.value.toUpperCase();
+                });
+            }
         }
         
-        // 搜索模式切换
         function enterSearchMode() {
             document.getElementById('normalNav').style.display = 'none';
             document.getElementById('searchNav').classList.add('active');
@@ -891,7 +1287,6 @@
             renderSentences();
         }
         
-        // 展开/折叠卡片
         function toggleCardExpand() {
             cardsExpanded = !cardsExpanded;
             updateExpandIcon();
@@ -903,7 +1298,6 @@
             icon.style.transform = cardsExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
         }
         
-        // 打开设置
         function openSettings() {
             document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('selected'));
             document.getElementById(`theme-${currentTheme}`)?.classList.add('selected');
@@ -914,14 +1308,40 @@
             document.getElementById('settingsModal').classList.remove('hidden');
         }
         
-        // 打开标签管理弹窗
         function openTagManageModal() {
             renderTagManageList();
             closeModal('settingsModal');
             document.getElementById('tagManageModal').classList.remove('hidden');
         }
         
-        // 渲染标签管理列表（上下箭头排序）
+        // 新增：从标签管理打开新建标签弹窗
+        function openNewTagFromManage() {
+            fromTagManage = true;
+            document.getElementById('newTagName').value = '';
+            document.getElementById('newTagColorHex').value = '#B8B0A8';
+            document.getElementById('newTagColorPreview').style.backgroundColor = '#B8B0A8';
+            renderExistingTags();
+            document.getElementById('tagModal').classList.remove('hidden');
+        }
+        
+        // 修改：标签管理关闭时返回设置
+        function closeTagManageModal() {
+            closeModal('tagManageModal');
+            openSettings();
+        }
+        
+        function openColorManageModal() {
+            renderColorManageList();
+            closeModal('settingsModal');
+            document.getElementById('colorManageModal').classList.remove('hidden');
+        }
+        
+        // 修改：颜色管理关闭时返回设置
+        function closeColorManageModal() {
+            closeModal('colorManageModal');
+            openSettings();
+        }
+        
         function renderTagManageList() {
             const container = document.getElementById('tagManageList');
             if (tags.length === 0) {
@@ -931,22 +1351,20 @@
             
             container.innerHTML = tags.map((tag, index) => `
                 <div class="tag-manage-item">
-                    <div class="tag-color-dot" style="background-color: ${tag.color};"></div>
+                    <div class="tag-color-dot" style="background-color: ${tag.color};" onclick="openGenericColorPicker('${tag.id}', '${tag.color}')" title="点击修改颜色"></div>
                     <div class="tag-name">${tag.name}</div>
                     <div class="tag-actions">
-                        <div class="tag-action-btn ${index === 0 ? 'opacity-20 pointer-events-none' : ''}" 
-                             onclick="moveTag(${index}, -1)" title="上移">
+                        <div class="tag-action-btn ${index === 0 ? 'opacity-20 pointer-events-none' : ''}" onclick="moveTag(${index}, -1)">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--nav-text);">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
                             </svg>
                         </div>
-                        <div class="tag-action-btn ${index === tags.length - 1 ? 'opacity-20 pointer-events-none' : ''}" 
-                             onclick="moveTag(${index}, 1)" title="下移">
+                        <div class="tag-action-btn ${index === tags.length - 1 ? 'opacity-20 pointer-events-none' : ''}" onclick="moveTag(${index}, 1)">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--nav-text);">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                             </svg>
                         </div>
-                        <div class="tag-action-btn" onclick="deleteTag('${tag.id}')" title="删除标签">
+                        <div class="tag-action-btn" onclick="deleteTag('${tag.id}')">
                             <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
@@ -956,12 +1374,232 @@
             `).join('');
         }
         
-        // 移动标签顺序
+        // 通用颜色选择器（供标签管理和新建标签共用）
+        function openGenericColorPicker(tagIdOrCallback, currentColor) {
+            if (typeof tagIdOrCallback === 'function') {
+                newTagColorPickerCallback = tagIdOrCallback;
+                currentEditingTagId = null;
+            } else {
+                currentEditingTagId = tagIdOrCallback;
+                newTagColorPickerCallback = null;
+            }
+            
+            document.getElementById('genericColorPicker').value = currentColor;
+            document.getElementById('genericColorHex').value = currentColor;
+            
+            // 渲染推荐颜色
+            const presetGrid = document.getElementById('genericColorPresetGrid');
+            const presets = getPresetColors();
+            presetGrid.innerHTML = presets.map(color => `
+                <div class="morandi-color ${color === currentColor ? 'selected' : ''}" 
+                     style="background: ${color}" 
+                     onclick="selectGenericColorPreset('${color}')"></div>
+            `).join('');
+            
+            // 渲染自定义颜色
+            const customSection = document.getElementById('customColorSection');
+            const customGrid = document.getElementById('genericCustomColorGrid');
+            
+            if (customColors.length > 0) {
+                customSection.style.display = 'block';
+                customGrid.innerHTML = customColors.map(color => `
+                    <div class="morandi-color ${color === currentColor ? 'selected' : ''}" 
+                         style="background: ${color}" 
+                         onclick="selectGenericColorPreset('${color}')"></div>
+                `).join('');
+            } else {
+                customSection.style.display = 'none';
+            }
+            
+            document.getElementById('colorPickerModal').classList.remove('hidden');
+        }
+        
+        function selectGenericColorPreset(color) {
+            document.getElementById('genericColorPicker').value = color;
+            document.getElementById('genericColorHex').value = color;
+            
+            document.querySelectorAll('#genericColorPresetGrid .morandi-color, #genericCustomColorGrid .morandi-color').forEach(el => {
+                el.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+        }
+        
+        function confirmGenericColorChange() {
+            const newColor = document.getElementById('genericColorHex').value.toUpperCase();
+            if (!/^#[0-9A-F]{6}$/.test(newColor)) {
+                showToast('请输入有效的颜色代码');
+                return;
+            }
+            
+            if (newTagColorPickerCallback) {
+                // 新建标签模式
+                newTagColorPickerCallback(newColor);
+            } else if (currentEditingTagId) {
+                // 编辑标签模式
+                const tag = tags.find(t => t.id === currentEditingTagId);
+                if (tag) {
+                    tag.color = newColor;
+                    saveData();
+                    renderSentences();
+                    // 修复：实时刷新标签管理列表以显示新颜色
+                    renderTagManageList();
+                    showToast('颜色已修改');
+                }
+            }
+            
+            closeModal('colorPickerModal');
+        }
+        
+        function closeColorPickerModal() {
+            closeModal('colorPickerModal');
+            // 如果是从标签管理打开的，返回时刷新列表确保颜色更新
+            if (currentEditingTagId) {
+                renderTagManageList();
+            }
+        }
+        
+        // 新建标签时的颜色选择
+        function openNewTagColorPicker() {
+            const currentColor = document.getElementById('newTagColorHex').value || '#B8B0A8';
+            openGenericColorPicker((color) => {
+                document.getElementById('newTagColorPreview').style.backgroundColor = color;
+                document.getElementById('newTagColorHex').value = color;
+            }, currentColor);
+        }
+        
+        function renderColorManageList() {
+            const presetGrid = document.getElementById('presetColorsGrid');
+            const presets = getPresetColors();
+            
+            if (presets.length === 0) {
+                presetGrid.innerHTML = '<span class="text-xs opacity-40 col-span-6">暂无推荐颜色</span>';
+            } else {
+                presetGrid.innerHTML = presets.map(color => `
+                    <div class="morandi-color" style="background: ${color}">
+                        <div class="delete-btn" onclick="event.stopPropagation(); deletePresetColor('${color}')">×</div>
+                    </div>
+                `).join('');
+            }
+            
+            const customList = document.getElementById('customColorsList');
+            document.getElementById('customColorCount').textContent = customColors.length;
+            
+            if (customColors.length === 0) {
+                customList.innerHTML = '<span class="text-sm opacity-40" style="color: var(--nav-text);">暂无自定义颜色</span>';
+            } else {
+                customList.innerHTML = customColors.map((color, index) => `
+                    <div class="color-manage-item">
+                        <div class="color-preview" style="background-color: ${color};"></div>
+                        <div class="flex-1 font-mono text-sm" style="color: var(--nav-text);">${color}</div>
+                        <button onclick="deleteCustomColor(${index})" class="p-2 rounded-lg hover:bg-red-50 text-red-600 transition-all active:scale-95">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        function addCustomColor() {
+            const hex = document.getElementById('customColorHex').value.trim().toUpperCase();
+            if (!/^#[0-9A-F]{6}$/.test(hex)) {
+                showToast('请输入有效的颜色代码');
+                return;
+            }
+            
+            if (customColors.includes(hex) || getPresetColors().includes(hex)) {
+                showToast('该颜色已存在');
+                return;
+            }
+            
+            customColors.push(hex);
+            saveData();
+            renderColorManageList();
+            document.getElementById('customColorHex').value = '';
+            showToast('颜色已添加');
+        }
+        
+        function deleteCustomColor(index) {
+            const color = customColors[index];
+            const usedCount = tags.filter(t => t.color === color).length;
+            if (usedCount > 0) {
+                if (!confirm(`该颜色正被 ${usedCount} 个标签使用，确定删除吗？`)) return;
+                
+                const availableColors = getAllColors().filter(c => c !== color);
+                const fallbackColor = availableColors[0] || '#B8B0A8';
+                tags.forEach(t => {
+                    if (t.color === color) t.color = fallbackColor;
+                });
+            }
+            
+            customColors.splice(index, 1);
+            saveData();
+            renderColorManageList();
+            showToast('颜色已删除');
+        }
+        
+        function deletePresetColor(color) {
+            if (!deletedPresetColors.includes(color)) {
+                deletedPresetColors.push(color);
+                saveData();
+                renderColorManageList();
+                showToast('推荐颜色已隐藏');
+            }
+        }
+        
+        function clearAllCustomColors() {
+            if (customColors.length === 0) {
+                showToast('没有自定义颜色需要清除');
+                return;
+            }
+            
+            const usedCount = tags.filter(t => customColors.includes(t.color)).length;
+            let msg = `确定删除所有 ${customColors.length} 个自定义颜色？`;
+            if (usedCount > 0) {
+                msg += `\n\n${usedCount} 个标签将使用默认颜色。`;
+            }
+            
+            if (!confirm(msg)) return;
+            
+            const availableColors = getPresetColors();
+            const fallbackColor = availableColors[0] || '#B8B0A8';
+            tags.forEach(t => {
+                if (customColors.includes(t.color)) t.color = fallbackColor;
+            });
+            
+            customColors = [];
+            saveData();
+            renderColorManageList();
+            showToast('自定义颜色已清除');
+        }
+        
+        // 新增：清除所有数据功能
+        function clearAllData() {
+            if (sentences.length === 0 && tags.length === 0) {
+                showToast('没有数据需要清除');
+                return;
+            }
+            
+            const totalItems = sentences.length + tags.length;
+            const msg = `确定清除所有数据吗？\n\n这将删除：\n• ${sentences.length} 条句子\n• ${tags.length} 个标签\n\n此操作不可恢复！`;
+            
+            if (!confirm(msg)) return;
+            
+            sentences = [];
+            tags = [];
+            // 可选：是否同时清除自定义颜色？这里选择保留颜色设置
+            
+            saveData();
+            renderSentences();
+            loadTagFilter();
+            showToast('所有数据已清除');
+        }
+        
         function moveTag(index, direction) {
             const newIndex = index + direction;
             if (newIndex < 0 || newIndex >= tags.length) return;
             
-            // 交换位置
             const temp = tags[index];
             tags[index] = tags[newIndex];
             tags[newIndex] = temp;
@@ -971,7 +1609,6 @@
             loadTagFilter();
         }
         
-        // 删除标签
         function deleteTag(tagId) {
             const tag = tags.find(t => t.id === tagId);
             if (!tag) return;
@@ -1002,7 +1639,6 @@
             showToast('标签已删除');
         }
         
-        // 清除空句子
         function clearEmptySentences() {
             const emptyCount = sentences.filter(s => !s.text || s.text.trim() === '').length;
             if (emptyCount === 0) {
@@ -1018,7 +1654,6 @@
             showToast(`已清除 ${emptyCount} 条空句子`);
         }
         
-        // 主题管理
         function setTheme(themeName) {
             currentTheme = themeName;
             localStorage.setItem('currentTheme', themeName);
@@ -1040,7 +1675,6 @@
             root.style.setProperty('--card-bg', theme.cardBg);
         }
         
-        // 字体管理
         function setFont(fontName) {
             currentFont = fontName;
             localStorage.setItem('currentFont', fontName);
@@ -1057,7 +1691,6 @@
             document.body.classList.add(`font-${fontName}`);
         }
         
-        // 多选模式
         function toggleBatchMode() {
             batchMode = !batchMode;
             selectedForBatch.clear();
@@ -1067,7 +1700,6 @@
                 btn.style.background = 'var(--nav-text)';
                 btn.style.color = 'var(--nav-bg)';
                 document.getElementById('batchToolbar').classList.add('active');
-                showToast('点击卡片进行选择，长按可查看详情');
             } else {
                 btn.style.background = 'var(--bg-color)';
                 btn.style.color = 'var(--nav-text)';
@@ -1145,16 +1777,6 @@
             generateExport();
         }
         
-        // 计算颜色亮度，返回黑色或白色文字
-        function getContrastColor(hexColor) {
-            const r = parseInt(hexColor.slice(1, 3), 16);
-            const g = parseInt(hexColor.slice(3, 5), 16);
-            const b = parseInt(hexColor.slice(5, 7), 16);
-            const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-            return brightness > 128 ? '#1a1a1a' : '#ffffff';
-        }
-        
-        // 渲染句子
         function renderSentences() {
             const container = document.getElementById('sentencesList');
             const empty = document.getElementById('emptyState');
@@ -1203,6 +1825,15 @@
                     <div class="batch-checkbox ${isSelected ? 'checked' : ''}" onclick="event.stopPropagation(); toggleBatchSelection('${s.id}')"></div>
                 ` : '';
                 
+                let commentHtml = '';
+                if (cardsExpanded && s.comment && s.comment.trim()) {
+                    commentHtml = `
+                        <div class="comment-section">
+                            <div class="text-sm opacity-80">${escapeHtml(s.comment)}</div>
+                        </div>
+                    `;
+                }
+                
                 return `
                     <div class="${borderClass} card-shadow rounded-xl p-4 relative overflow-hidden select-none ${isSelected ? 'ring-2' : ''}" 
                          style="${borderStyle}; background: var(--card-bg); --tw-ring-color: var(--nav-text);"
@@ -1210,15 +1841,16 @@
                          onclick="${batchMode ? `toggleBatchSelection('${s.id}')` : `openDetailModal('${s.id}')`}">
                         ${batchCheck}
                         <p class="sentence-text ${expandClass}" style="color: var(--nav-text);">${escapeHtml(s.text)}</p>
+                        ${commentHtml}
                     </div>
                 `;
             }).join('');
         }
         
-        // 弹窗操作
         function openAddModal() {
             currentEditingId = null;
             selectedTags = [];
+            fromTagManage = false;
             
             if (currentFilter !== 'all') {
                 selectedTags = [currentFilter];
@@ -1237,18 +1869,74 @@
             
             document.getElementById('detailText').textContent = s.text;
             
+            // 修复：移除标签前的多余 > 符号
             const tagsContainer = document.getElementById('detailTags');
             tagsContainer.innerHTML = s.tags.map(tagId => {
                 const tag = tags.find(t => t.id === tagId);
                 if (!tag) return '';
-                const textColor = getContrastColor(tag.color);
-                return `<span class="tag-badge" style="background-color: ${tag.color}; color: ${textColor};">${tag.name}</span>`;
+                return `<span class="tag-badge" style="background-color: ${tag.color};">${tag.name}</span>`;
             }).join('');
+            
+            const commentSection = document.getElementById('detailCommentSection');
+            const commentDiv = document.getElementById('detailComment');
+            
+            if (s.comment && s.comment.trim()) {
+                commentDiv.textContent = s.comment;
+            } else {
+                commentDiv.textContent = '';
+            }
+            commentSection.classList.add('hidden');
             
             document.getElementById('detailModal').classList.remove('hidden');
         }
         
+        function handleCommentClick() {
+            const s = sentences.find(s => s.id === currentDetailId);
+            if (!s) return;
+            
+            if (s.comment && s.comment.trim()) {
+                const commentSection = document.getElementById('detailCommentSection');
+                if (commentSection.classList.contains('hidden')) {
+                    commentSection.classList.remove('hidden');
+                } else {
+                    openCommentModal();
+                }
+            } else {
+                openCommentModal();
+            }
+        }
+        
+        function openCommentModal() {
+            const s = sentences.find(s => s.id === currentDetailId);
+            if (!s) return;
+            
+            const hasComment = s.comment && s.comment.trim();
+            document.getElementById('commentModalTitle').textContent = hasComment ? '编辑评论' : '添加评论';
+            document.getElementById('commentText').value = s.comment || '';
+            closeModal('detailModal');
+            document.getElementById('commentModal').classList.remove('hidden');
+        }
+        
+        function closeCommentModal() {
+            closeModal('commentModal');
+            openDetailModal(currentDetailId);
+        }
+        
+        function saveComment() {
+            const text = document.getElementById('commentText').value.trim();
+            const index = sentences.findIndex(s => s.id === currentDetailId);
+            
+            if (index !== -1) {
+                sentences[index].comment = text;
+                saveData();
+                renderSentences();
+                closeCommentModal();
+                showToast(text ? '评论已保存' : '评论已删除');
+            }
+        }
+        
         function openTagSelector() {
+            fromTagManage = false;
             renderExistingTags();
             document.getElementById('tagModal').classList.remove('hidden');
         }
@@ -1259,7 +1947,8 @@
         }
         
         function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
+            const modal = document.getElementById(id);
+            modal.classList.add('hidden');
         }
         
         function deleteCurrentSentence() {
@@ -1273,22 +1962,6 @@
             showToast('已删除');
         }
         
-        // 颜色标签
-        function renderMorandiColors() {
-            const container = document.getElementById('morandiColors');
-            container.innerHTML = morandiColors.map(color => `
-                <div class="morandi-color" style="background: ${color}" onclick="selectColor('${color}')"></div>
-            `).join('');
-        }
-        
-        function selectColor(color) {
-            document.getElementById('colorPicker').value = color;
-            document.getElementById('colorHex').value = color;
-            
-            document.querySelectorAll('.morandi-color').forEach(el => el.classList.remove('selected'));
-            event.target.classList.add('selected');
-        }
-        
         function renderExistingTags() {
             const container = document.getElementById('existingTags');
             if (tags.length === 0) {
@@ -1298,11 +1971,10 @@
             
             container.innerHTML = tags.map(tag => {
                 const isSelected = selectedTags.includes(tag.id);
-                const textColor = getContrastColor(tag.color);
                 return `
                     <button onclick="toggleTagSelection('${tag.id}')" 
-                            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm border transition-all"
-                            style="background: ${isSelected ? tag.color : 'var(--bg-color)'}; color: ${isSelected ? textColor : 'var(--nav-text)'}; border-color: ${tag.color};">
+                            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm border transition-all duration-200 hover:scale-105 active:scale-95"
+                            style="background: ${isSelected ? tag.color : 'var(--bg-color)'}; color: ${isSelected ? '#ffffff' : 'var(--nav-text)'}; border-color: ${tag.color};">
                         ${tag.name}
                     </button>
                 `;
@@ -1319,12 +1991,10 @@
             container.innerHTML = selectedTags.map(tagId => {
                 const tag = tags.find(t => t.id === tagId);
                 if (!tag) return '';
-                const textColor = getContrastColor(tag.color);
                 return `
-                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs tag-badge" 
-                          style="background-color: ${tag.color}; color: ${textColor};">
+                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs tag-badge" style="background-color: ${tag.color};">
                         ${tag.name}
-                        <button onclick="event.stopPropagation(); toggleTagSelection('${tag.id}')" class="ml-1 opacity-70 hover:opacity-100">×</button>
+                        <button onclick="event.stopPropagation(); toggleTagSelection('${tag.id}')" class="ml-1 opacity-70 hover:opacity-100 transition-opacity">×</button>
                     </span>
                 `;
             }).join('');
@@ -1342,7 +2012,7 @@
         
         function createNewTag() {
             const name = document.getElementById('newTagName').value.trim();
-            const color = document.getElementById('colorHex').value;
+            const color = document.getElementById('newTagColorHex').value || '#B8B0A8';
             
             if (!name) {
                 showToast('请输入标签名称');
@@ -1371,13 +2041,26 @@
             saveData();
             
             document.getElementById('newTagName').value = '';
-            renderExistingTags();
-            renderSelectedTags();
-            loadTagFilter();
+            document.getElementById('newTagColorHex').value = '#B8B0A8';
+            document.getElementById('newTagColorPreview').style.backgroundColor = '#B8B0A8';
+            
+            // 如果从标签管理打开，刷新列表并关闭弹窗后返回标签管理
+            if (fromTagManage) {
+                renderTagManageList();
+                closeModal('tagModal');
+                fromTagManage = false;
+                showToast('标签已创建');
+            } else {
+                renderExistingTags();
+                renderSelectedTags();
+                loadTagFilter();
+                showToast('标签已创建');
+            }
         }
         
         function saveSentence() {
             const text = document.getElementById('sentenceText').value.trim();
+            
             if (!text) {
                 showToast('请输入句子内容');
                 return;
@@ -1393,6 +2076,7 @@
                 sentences.unshift({
                     id: Date.now().toString(),
                     text: text,
+                    comment: '',
                     tags: [...selectedTags],
                     createdAt: Date.now()
                 });
@@ -1419,11 +2103,18 @@
         
         function modifyTags() {
             closeModal('detailModal');
-            editCurrentSentence();
+            const s = sentences.find(s => s.id === currentDetailId);
+            if (!s) return;
+            
+            currentEditingId = s.id;
+            selectedTags = [...s.tags];
+            document.getElementById('modalTitle').textContent = '编辑标签';
+            document.getElementById('sentenceText').value = s.text;
+            renderSelectedTags();
+            document.getElementById('sentenceModal').classList.remove('hidden');
             openTagSelector();
         }
         
-        // 过滤
         function loadTagFilter() {
             const container = document.getElementById('tagFilterList');
             if (tags.length === 0) {
@@ -1432,7 +2123,7 @@
             }
             
             container.innerHTML = tags.map(tag => `
-                <button onclick="filterByTag('${tag.id}')" class="w-full text-left px-4 py-2 hover:opacity-70 text-sm flex items-center gap-2 transition-colors" style="color: var(--nav-text);">
+                <button onclick="filterByTag('${tag.id}')" class="w-full text-left px-4 py-2 hover:opacity-70 text-sm flex items-center gap-2 transition-all hover:translate-x-1" style="color: var(--nav-text);">
                     <span class="w-2 h-2 rounded-full" style="background: ${tag.color}"></span>
                     ${tag.name}
                 </button>
@@ -1446,7 +2137,6 @@
             renderSentences();
         }
         
-        // 文件导入
         function handleFileImport(input) {
             const file = input.files[0];
             if (!file) return;
@@ -1461,7 +2151,6 @@
             reader.readAsText(file);
         }
         
-        // 导入导出
         function batchImport() {
             const text = document.getElementById('importText').value.trim();
             if (!text) {
@@ -1476,6 +2165,13 @@
                 line = line.trim();
                 if (!line) return;
                 
+                let comment = '';
+                const commentMatch = line.match(/\/\/.+$/);
+                if (commentMatch) {
+                    comment = commentMatch[0].replace('//', '').trim();
+                    line = line.replace(/\/\/.+$/, '').trim();
+                }
+                
                 const tagMatches = line.match(/#\S+/g) || [];
                 const tagNames = tagMatches.map(t => t.substring(1));
                 let sentenceText = line.replace(/#\S+/g, '').trim();
@@ -1485,7 +2181,8 @@
                 const sentenceTags = tagNames.map(name => {
                     let tag = tags.find(t => t.name === name);
                     if (!tag) {
-                        const color = morandiColors[Math.floor(Math.random() * morandiColors.length)];
+                        const colors = getAllColors();
+                        const color = colors[Math.floor(Math.random() * colors.length)];
                         tag = { id: Date.now().toString() + Math.random(), name, color };
                         tags.push(tag);
                     }
@@ -1495,6 +2192,7 @@
                 sentences.unshift({
                     id: Date.now().toString() + Math.random(),
                     text: sentenceText,
+                    comment: comment,
                     tags: sentenceTags,
                     createdAt: Date.now()
                 });
@@ -1512,7 +2210,7 @@
         function renderExportTags() {
             const container = document.getElementById('exportTagSelect');
             container.innerHTML = tags.map(tag => `
-                <label class="inline-flex items-center gap-1 text-sm cursor-pointer px-2 py-1 rounded" style="background: var(--bg-color); color: var(--nav-text);">
+                <label class="inline-flex items-center gap-1 text-sm cursor-pointer px-2 py-1 rounded transition-all hover:opacity-70" style="background: var(--bg-color); color: var(--nav-text);">
                     <input type="checkbox" value="${tag.id}" class="export-tag-checkbox rounded border-gray-300">
                     <span>${tag.name}</span>
                 </label>
@@ -1521,6 +2219,7 @@
         
         function generateExport() {
             const withTags = document.getElementById('exportWithTags').checked;
+            const withComments = document.getElementById('exportWithComments').checked;
             const filter = document.getElementById('exportFilter').value;
             let toExport = sentences;
             
@@ -1541,15 +2240,21 @@
             
             let result = '';
             toExport.forEach(s => {
+                let line = s.text;
+                
                 if (withTags && s.tags.length > 0) {
                     const tagStr = s.tags.map(tagId => {
                         const tag = tags.find(t => t.id === tagId);
                         return tag ? `#${tag.name}` : '';
                     }).join(' ');
-                    result += `${s.text} ${tagStr}\n`;
-                } else {
-                    result += s.text + '\n';
+                    line += ` ${tagStr}`;
                 }
+                
+                if (withComments && s.comment && s.comment.trim()) {
+                    line += ` //${s.comment}`;
+                }
+                
+                result += line + '\n';
             });
             
             document.getElementById('exportResult').value = result.trim();
@@ -1583,7 +2288,6 @@
                 
                 textArea.focus();
                 textArea.select();
-                textArea.setSelectionRange(0, text.length);
                 
                 const successful = document.execCommand('copy');
                 document.body.removeChild(textArea);
@@ -1624,9 +2328,11 @@
             try {
                 localStorage.setItem('sentences', JSON.stringify(sentences));
                 localStorage.setItem('tags', JSON.stringify(tags));
+                localStorage.setItem('customColors', JSON.stringify(customColors));
+                localStorage.setItem('deletedPresetColors', JSON.stringify(deletedPresetColors));
             } catch (e) {
                 if (e.name === 'QuotaExceededError') {
-                    showToast('存储空间不足');
+                    showToast('存储空间不足，请删除一些句子');
                 }
             }
         }
@@ -1635,7 +2341,19 @@
             const toast = document.getElementById('toast');
             toast.textContent = msg;
             toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 2000);
+            // 添加显示动画
+            setTimeout(() => {
+                toast.classList.remove('opacity-0', '-translate-y-2');
+                toast.classList.add('opacity-100', 'translate-y-0');
+            }, 10);
+            
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', '-translate-y-2');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 300);
+            }, 2000);
         }
         
         function escapeHtml(text) {
